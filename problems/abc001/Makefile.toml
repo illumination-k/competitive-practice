@@ -1,0 +1,15 @@
+[tasks.run]
+command = "cargo"
+args = ["run", "--bin", "${@}"]
+
+[tasks.test]
+command = "cargo"
+args = ["atcoder", "test", "${@}"]
+
+[tasks.expand]
+script = "expand.py --bin ${@}"
+
+[tasks.submit]
+dependencies = ["expand"]
+command = "cargo"
+args = ["atcoder", "submit", "${@}"]
