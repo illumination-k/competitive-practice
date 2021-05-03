@@ -2,11 +2,13 @@
 
 from pathlib import Path
 import os
+import shutil
 import argparse
 import subprocess
 
 """\
 new -> make new folder
+open -> open folder with peco
 """
 
 ROOT_DIRECTORY = Path(os.path.dirname(os.path.abspath(__file__))).parent
@@ -15,15 +17,14 @@ ETC_DIRECTORY = os.path.join(ROOT_DIRECTORY, "etc")
 
 
 def make_toolchain(path):
-    with open(os.path.join(path, "rust-toolcahin"), "w") as f:
+    with open(os.path.join(path, "rust-toolchain"), "w") as f:
         f.write("1.42.0")
 
 
-def make_makefile(path):
-    with open(os.path.join(path, "Makefile.toml"), "w") as w:
-        with open(os.path.join(ETC_DIRECTORY, "Makefile.toml"), "r") as r:
-            lines = r.readlines()
-        w.write("".join(lines))
+def ln_makefile(path):
+    target = os.path.join(path, "Makefile.toml")
+    source = os.path.join(ETC_DIRECTORY, "Makefile.toml")
+    subprocess.run(f"ln -sfv {source} {target}", shell=True)
 
 
 def new(args):
@@ -34,9 +35,10 @@ def new(args):
     if args.contest_id not in contest_dirs:
         subprocess.run(f"cargo atcoder new {args.contest_id}", shell=True, check=True)
         make_toolchain(contest_path)
-        make_makefile(contest_path)
+        ln_makefile(contest_path)
+
         subprocess.run(["git", "add", "."])
-        subprocess.run(["git", "commit", "-m", '"first commit"'])
+        subprocess.run(["git", "commit", "-m", f'"first commit in {args.contest_id}"'])
 
     subprocess.run(f"code {args.contest_id}", shell=True, check=True)
 

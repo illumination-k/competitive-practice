@@ -31,7 +31,11 @@ fn solve() -> impl AtCoderFormat {
     const UINF: usize = std::usize::MAX;
     const IINF: isize = std::isize::MAX;
 
-    input! {}
+    input! {
+        n: usize, l: usize,
+        k: usize,
+        a: [usize; n]
+    }
 
     ""
 }
