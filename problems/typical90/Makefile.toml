@@ -1,0 +1,24 @@
+[tasks.autoadd]
+command = "git"
+args = ["add", "./src/bin/${@}.rs"]
+
+[tasks.autocommit]
+dependencies = ["autoadd"]
+command = "git"
+args = ["commit", "-m", "autocommit on submission (./src/bin/${@}.rs)"]
+
+[tasks.run]
+command = "cargo"
+args = ["run", "--bin", "${@}"]
+
+[tasks.test]
+command = "cargo"
+args = ["atcoder", "test", "${@}"]
+
+[tasks.expand]
+script = "expand.py --bin ${@}"
+
+[tasks.submit]
+dependencies = ["expand", "autocommit"]
+command = "cargo"
+args = ["atcoder", "submit", "${@}"]
