@@ -50,12 +50,6 @@ def parse_args():
     new_parser.add_argument("contest_id")
     new_parser.set_defaults(handler=new)
 
-    # test
-    test_parser = subparsers.add_parser("test")
-
-    # submit
-    submit_parser = subparsers.add_parser("submit")
-
     # args
     args = parser.parse_args()
 
