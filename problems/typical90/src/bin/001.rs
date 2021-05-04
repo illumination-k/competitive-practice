@@ -25,6 +25,20 @@ macro_rules! debug {
     };
 }
 
+fn ok(m: usize, k: usize, l: usize, a: &Vec<usize>) -> bool {
+    let mut cnt = 0;
+    let mut pre = 0;
+
+    for &aa in a.iter() {
+        if aa - pre >= m && l - aa >= m {
+            cnt += 1;
+            pre = aa;
+        }
+    }
+
+    cnt >= k
+}
+
 #[fastout]
 fn solve() -> impl AtCoderFormat {
     const MOD: usize = 1_000_000_007;
@@ -34,16 +48,42 @@ fn solve() -> impl AtCoderFormat {
     input! {
         n: usize, l: usize,
         k: usize,
-        a: [usize; n]
+        mut a: [usize; n]
     }
 
-    ""
+    a.push(l);
+
+    let mut left = 1;
+    let mut right = l + 1;
+
+    while right - left > 1 {
+        let mid = left + (right - left) / 2;
+
+        debug!(mid, ok(mid, k, l, &a));
+        if !ok(mid, k, l, &a) {
+            right = mid;
+        } else {
+            left = mid;
+        }
+    }
+
+    right - 1
 }
 
 fn main() {
     println!("{}", solve().format());
 }
 
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_ok() {
+        let a = vec![8, 13, 26, 34];
+        debug!(ok(34, 1, 1, &a));
+    }
+}
 mod competitive_internal_mod {
     pub mod format {
         use std::vec::Vec;
