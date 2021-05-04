@@ -24,7 +24,7 @@ def make_toolchain(path):
 def ln_makefile(path):
     target = os.path.join(path, "Makefile.toml")
     source = os.path.join(ETC_DIRECTORY, "Makefile.toml")
-    subprocess.run(f"ln -sfv {source} {target}", shell=True)
+    subprocess.run(f"ln -sfvn {source} {target}", shell=True)
 
 
 def new(args):
