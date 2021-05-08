@@ -53,6 +53,7 @@ fn solve() -> impl AtCoderFormat {
     頂点数がN-1
     木
     木の直径
+    木の直径の求め方は、任意のノードからの最大距離のノードをuとすると、uからの最大距離
     */
 
     let tree: ListGraph<usize> = ListGraph::unweighted_from(ab, n, 1, Direction::UnGraph);
