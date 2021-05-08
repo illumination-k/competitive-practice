@@ -27,26 +27,14 @@ macro_rules! debug {
     };
 }
 
-fn bfs_root(start: usize, tree: &ListGraph<usize>, root: usize) -> Vec<isize> {
-    let mut dist = vec![-1; tree.len()];
-    let mut vq = VecDeque::new();
-    dist[start] = 0;
-    vq.push_back(start);
-
-    while let Some(s) = vq.pop_front() {
-        for &next in tree.neighbors_unweighted(s) {
-            if dist[next] != -1 {
-                continue;
-            }
-            if next == root {
-                continue;
-            }
-            dist[next] = dist[s] + 1;
-            vq.push_back(next);
-        }
-    }
-
-    dist
+fn get_max_index(v: &Vec<isize>) -> usize {
+    let i = v
+        .iter()
+        .enumerate()
+        .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
+        .unwrap()
+        .0;
+    i
 }
 
 #[fastout]
@@ -64,30 +52,16 @@ fn solve() -> impl AtCoderFormat {
     すべての点が連結
     頂点数がN-1
     木
-    子が一番多いやつの最大深さ * 2 + 1
+    木の直径
     */
 
     let tree: ListGraph<usize> = ListGraph::unweighted_from(ab, n, 1, Direction::UnGraph);
 
-    let root = (0..n)
-        .map(|i| tree.neighbors_unweighted(i).count())
-        .enumerate()
-        .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
-        .unwrap()
-        .0;
+    let (dist1, _) = bfs(&tree, 0);
+    let next = get_max_index(&dist1);
+    let (dist2, _) = bfs(&tree, next);
 
-    debug!(root);
-    let mut res = vec![];
-    for &s in tree.neighbors_unweighted(root) {
-        let _r = bfs_root(s, &tree, root);
-
-        debug!(s, _r);
-        res.push(*_r.iter().max().unwrap())
-    }
-    res.sort();
-    let ans = res.pop().unwrap() + res.pop().unwrap() + 3;
-
-    ans
+    dist2.iter().max().unwrap() + 1
 }
 
 fn main() {
