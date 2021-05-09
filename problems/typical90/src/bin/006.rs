@@ -48,10 +48,10 @@ fn solve() -> impl AtCoderFormat {
     let s_int = s
         .iter()
         .enumerate()
-        .map(|(i, &c)| (c as usize, -1 * i as isize))
+        .map(|(i, &c)| (c as usize, i))
         .collect_vec();
 
-    let st: SegmentTree<Min<(usize, isize)>> = SegmentTree::from_slice(&s_int);
+    let st: SegmentTree<Min<(usize, usize)>> = SegmentTree::from_slice(&s_int);
 
     let mut ans = vec![];
     let mut start = 0;
@@ -63,7 +63,7 @@ fn solve() -> impl AtCoderFormat {
         // 少なくともk-i+1桁残す必要がある
         let c = st.query(start..=end).0;
         ans.push(c.0 as u8 as char);
-        start = (c.1 * -1) as usize + 1;
+        start = c.1 + 1;
     }
 
     ans.iter().collect::<String>()
