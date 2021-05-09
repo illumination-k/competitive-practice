@@ -39,7 +39,7 @@ fn solve() -> impl AtCoderFormat {
     /*
     1. 桁DP
     https://torus711.hatenablog.com/entry/20150423/1429794075
-    smallerは1 <= ci <= 9なので必要ない
+    smallerは丁度n桁の整数かつ、1 <= ci <= 9なので必要ない
     2. 行列累乗
     */
     let mut dp = vec![vec![0; b]; n + 1];
