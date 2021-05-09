@@ -17,13 +17,7 @@ use itertools_num::ItertoolsNum;
 
 use competitive_internal_mod::format::*;
 
-#[allow(unused_macros)]
-macro_rules! debug {
-    ($($a:expr),* $(,)*) => {
-        #[cfg(debug_assertions)]
-        eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
-    };
-}
+use utils::debug;
 
 #[fastout]
 fn solve() -> impl AtCoderFormat {
@@ -37,7 +31,7 @@ fn solve() -> impl AtCoderFormat {
         q: usize,
         b: [isize; q]
     }
-
+    debug!(a);
     /*
     自分に一番近いところのクラスを探す
     二分探索すればO((q+n)logn) (sortする計算量もある)
@@ -147,4 +141,14 @@ mod competitive_internal_mod {
             }
         }
     }
+}
+pub mod utils {
+    #[allow(unused_macros)]
+    macro_rules! debug {
+        ($($a:expr),* $(,)*) => {
+            #[cfg(debug_assertions)]
+            eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
+        };
+    }
+    pub(crate) use debug;
 }
