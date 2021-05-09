@@ -40,7 +40,7 @@ fn solve() -> impl AtCoderFormat {
 
     /*
     自分に一番近いところのクラスを探す
-    二分探索すればO(qlogn)
+    二分探索すればO((q+n)logn) (sortする計算量もある)
     */
 
     a.sort();

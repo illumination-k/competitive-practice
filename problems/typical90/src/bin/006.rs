@@ -42,9 +42,11 @@ fn solve() -> impl AtCoderFormat {
     naiveにやるとx桁目を決めるときに右からx-1個残したところの中で辞書順最小をとる、をk回繰り返せばできるが、TLEしそう
     何らかの前計算がいる？
     最小値がわかればいいので、RMQすればよさそう
+    ある範囲内の最小値 -> SegmentTree!
     */
 
-    // (index, val)
+    // (val, index)
+    // valの小さいもの、indexの小さいものを持って来る
     let s_int = s
         .iter()
         .enumerate()
