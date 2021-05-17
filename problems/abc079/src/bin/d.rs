@@ -42,7 +42,8 @@ fn get_min_path(c: &Vec<Vec<usize>>) -> Vec<usize> {
     let vals = vec![0, 2, 3, 4, 5, 6, 7, 8, 9];
     let mut min_paths = vec![UINF; 10];
     min_paths[1] = 0;
-    for k in 1..=8 {
+
+    for k in 1..=9 {
         for perm in vals.iter().permutations(k) {
             // debug!(perm);
             // 0 -> 9 -> 2 -> 1のとき c[0][9] + c[9][2] + c[2][1]
