@@ -4,15 +4,12 @@
 
 use num::*;
 use num_traits::*;
-use proconio::marker::*;
-use proconio::{fastout, input};
-use std::collections::*;
-use std::ops::*;
+use proconio::{fastout, input, marker::*};
+use std::{collections::*, ops::*};
 use superslice::*;
 use whiteread::parse_line;
 
-use itertools::iproduct;
-use itertools::Itertools;
+use itertools::{iproduct, Itertools};
 use itertools_num::ItertoolsNum;
 
 use competitive::format::*;
