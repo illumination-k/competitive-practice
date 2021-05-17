@@ -16,7 +16,7 @@ command = "cargo"
 args = ["atcoder", "test", "${@}"]
 
 [tasks.expand]
-script = "expand.py --bin ${@}"
+script = "expand_mod --bin ${@}"
 
 [tasks.submit]
 dependencies = ["expand", "autocommit"]
