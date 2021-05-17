@@ -21,7 +21,10 @@ const IINF: isize = std::isize::MAX;
 
 #[fastout]
 fn solve() -> impl AtCoderFormat {
-    input! {}
+    input! {
+        n: usize,
+        xy: [(usize, usize); n]
+    }
 
     ""
 }
