@@ -39,10 +39,9 @@ Aスタートはいらない
 1. B-
 2. -A
 3. B-A
-の三種類のカウントでいい。3は自己消費可能なので最後に計算
 
-ans = min(count(1), count(2)) + count(3)
-if count(1) != count(2) { ans += 1 }
+の3種類のカウントでいい。
+- 2 | 3 | 1の順番のやつをまずカウント
 */
 
 #[fastout]
@@ -100,6 +99,15 @@ fn solve() -> impl AtCoderFormat {
             count1 += 1;
         }
     }
+
+    // 全部の共通
+    let count_min = *[count1, count2, count3].iter().min().unwrap();
+
+    ans += count_min * 2;
+    count1 -= count_min;
+    count2 -= count_min;
+    count3 -= count_min;
+
     ans += std::cmp::min(count1, count2);
 
     if count3 > 0 {
