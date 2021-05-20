@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/python3
 
 from pathlib import Path
 import os
@@ -40,8 +40,10 @@ def new(args):
         subprocess.run(["git", "add", "."])
         subprocess.run(["git", "commit", "-m", f'"first commit in {args.contest_id}"'])
 
-    subprocess.run(f"code {args.contest_id}", shell=True, check=True)
-
+    if shutil.which("code") is not None:
+        subprocess.run(f"code {args.contest_id}", shell=True, check=True)
+    else:
+        print("Code Command is not Found")
 
 def parse_args():
     parser = argparse.ArgumentParser()
