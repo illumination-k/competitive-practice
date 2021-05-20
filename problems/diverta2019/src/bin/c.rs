@@ -108,13 +108,15 @@ fn solve() -> impl AtCoderFormat {
     count2 -= count_min;
     count3 -= count_min;
 
-    ans += std::cmp::min(count1, count2);
-
-    if count3 > 0 {
-        if count1 != count2 {
-            ans += count3;
+    if count3 == 0 {
+        ans += std::cmp::min(count1, count2);
+    } else {
+        // count1かcount2が0
+        // count3 > 0
+        if count1 == count2 {
+            ans += count3 - 1
         } else {
-            ans += count3 - 1;
+            ans += count3
         }
     }
 
