@@ -42,45 +42,10 @@ Aスタートはいらない
 
 の3種類のカウントでいい。
 - 2 | 3 | 1の順番のやつをまずカウント
+- 3を全部つないでから、1,2を考えるもの
 */
 
-#[fastout]
-fn solve() -> impl AtCoderFormat {
-    const MOD: usize = 1_000_000_007;
-    const UINF: usize = std::usize::MAX;
-    const IINF: isize = std::isize::MAX;
-
-    input! {
-        n: usize,
-        ss: [Chars; n]
-    }
-
-    let mut ans = 0;
-    let mut new_ss = vec![];
-    // ABは取り除いても変わらないので、ABを先に取り除いておく
-    for s in ss.iter() {
-        // ABを取り除く
-        let mut new_s = vec![];
-        let mut ab_index = vec![];
-        for i in 0..s.len() - 1 {
-            if s[i] == 'A' && s[i + 1] == 'B' {
-                ab_index.push(i);
-                ab_index.push(i + 1);
-                ans += 1;
-            }
-        }
-
-        for i in 0..s.len() {
-            if !ab_index.contains(&i) {
-                new_s.push(s[i]);
-            }
-        }
-
-        new_ss.push(new_s);
-    }
-
-    debug!(new_ss);
-
+fn counter(new_ss: &Vec<Vec<char>>) -> (usize, usize, usize) {
     let mut count1 = 0;
     let mut count2 = 0;
     let mut count3 = 0;
@@ -100,7 +65,12 @@ fn solve() -> impl AtCoderFormat {
         }
     }
 
-    // 全部の共通
+    (count1, count2, count3)
+}
+
+fn count_method_1(new_ss: &Vec<Vec<char>>) -> usize {
+    let mut ans = 0;
+    let (mut count1, mut count2, mut count3) = counter(new_ss);
     let count_min = *[count1, count2, count3].iter().min().unwrap();
 
     ans += count_min * 2;
@@ -119,6 +89,69 @@ fn solve() -> impl AtCoderFormat {
             ans += count3
         }
     }
+    ans
+}
+
+fn count_method_2(new_ss: &Vec<Vec<char>>) -> usize {
+    let mut ans = 0;
+    let (mut count1, mut count2, count3) = counter(new_ss);
+
+    if count3 == 0 {
+        ans += std::cmp::min(count1, count2)
+    } else {
+        if count1 == 0 && count2 == 0 {
+            ans += count3 - 1
+        } else if count1 == 0 || count2 == 0 {
+            ans += count3
+        } else {
+            ans += count3 + 1;
+            count1 -= 1;
+            count2 -= 1;
+            ans += std::cmp::min(count1, count2);
+        }
+    }
+
+    ans
+}
+
+#[fastout]
+fn solve() -> impl AtCoderFormat {
+    const MOD: usize = 1_000_000_007;
+    const UINF: usize = std::usize::MAX;
+    const IINF: isize = std::isize::MAX;
+
+    input! {
+        n: usize,
+        ss: [Chars; n]
+    }
+
+    let mut t = 0;
+    let mut new_ss = vec![];
+    // ABは取り除いても変わらないので、ABを先に取り除いておく
+    for s in ss.iter() {
+        // ABを取り除く
+        let mut new_s = vec![];
+        let mut ab_index = vec![];
+        for i in 0..s.len() - 1 {
+            if s[i] == 'A' && s[i + 1] == 'B' {
+                ab_index.push(i);
+                ab_index.push(i + 1);
+                t += 1;
+            }
+        }
+
+        for i in 0..s.len() {
+            if !ab_index.contains(&i) {
+                new_s.push(s[i]);
+            }
+        }
+
+        new_ss.push(new_s);
+    }
+
+    debug!(new_ss);
+
+    let ans = std::cmp::max(count_method_1(&new_ss), count_method_2(&new_ss)) + t;
 
     ans
 }
