@@ -86,6 +86,9 @@ fn solve() -> impl AtCoderFormat {
     let mut count2 = 0;
     let mut count3 = 0;
     for s in new_ss.iter() {
+        if s.len() == 0 {
+            continue;
+        }
         let start = s[0];
         let end = s[s.len() - 1];
 
