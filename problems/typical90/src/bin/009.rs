@@ -58,10 +58,12 @@ fn solve() -> impl AtCoderFormat {
         debug!(declinations);
 
         for &(declination, j) in declinations.iter() {
-            if i == j { continue; }
+            if i == j {
+                continue;
+            }
             let _ideal = declination + 180.0;
             let ideal = if _ideal < 360.0 {
-                _ideal 
+                _ideal
             } else {
                 _ideal - 360.0
             };
@@ -72,7 +74,11 @@ fn solve() -> impl AtCoderFormat {
             } else {
                 idx
             };
-            ans = ans.max((declinations[k].0 - declination).abs().min(360.0 - (declinations[k].0 - declination).abs()));
+            ans = ans.max(
+                (declinations[k].0 - declination)
+                    .abs()
+                    .min(360.0 - (declinations[k].0 - declination).abs()),
+            );
             debug!(ans);
         }
     }

@@ -4,54 +4,84 @@
 
 use num::*;
 use num_traits::*;
-use proconio::{fastout, input, marker::*};
-use std::{collections::*, ops::*};
+use proconio::marker::*;
+use proconio::{fastout, input};
+use std::collections::*;
+use std::ops::*;
 use superslice::*;
 use whiteread::parse_line;
 
-use itertools::{iproduct, Itertools};
+use itertools::iproduct;
+use itertools::Itertools;
 use itertools_num::ItertoolsNum;
 
 use competitive_internal_mod::format::*;
-use utils::debug;
 
+#[allow(unused_macros)]
+macro_rules! debug {
+    ($($a:expr),* $(,)*) => {
+        #[cfg(debug_assertions)]
+        eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
+    };
+}
 const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
+// vecから最小値を出す
+fn cost_sum(perm: &Vec<&usize>, c: &Vec<Vec<usize>>) -> usize {
+    let mut sum = 0;
+    for i in 0..perm.len() - 1 {
+        sum += c[*perm[i]][*perm[i + 1]]
+    }
+    sum += c[*perm[perm.len() - 1]][1];
+    sum
+}
+
+// 各数字から1に変換する方法の最小値を求める
+fn get_min_path(c: &Vec<Vec<usize>>) -> Vec<usize> {
+    let vals = vec![0, 2, 3, 4, 5, 6, 7, 8, 9];
+    let mut min_paths = vec![UINF; 10];
+    min_paths[1] = 0;
+
+    for k in 1..=9 {
+        for perm in vals.iter().permutations(k) {
+            // debug!(perm);
+            // 0 -> 9 -> 2 -> 1のとき c[0][9] + c[9][2] + c[2][1]
+            let sum = cost_sum(&perm, c);
+            let idx = *perm[0];
+            min_paths[idx] = std::cmp::min(sum, min_paths[idx]);
+        }
+    }
+
+    min_paths
+}
 
 #[fastout]
 fn solve() -> impl AtCoderFormat {
     input! {
-        n: usize,
-        mut av: [isize; n],
-        mut bv: [isize; n]
+        h: usize, w: usize,
+        c: [[usize; 10]; 10],
+        a: [[isize; w]; h]
     }
 
-    av.sort();
-    bv.sort();
+    let min_paths = get_min_path(&c);
 
+    debug!(min_paths);
     let mut ans = 0;
+    for x in 0..w {
+        for y in 0..h {
+            if a[y][x] == -1 {
+                continue;
+            }
 
-    for i in 0..n {
-        ans += (av[i] - bv[i]).abs();
+            ans += min_paths[a[y][x] as usize];
+        }
     }
-
     ans
 }
 
 fn main() {
     println!("{}", solve().format());
-}
-
-pub mod utils {
-    #[allow(unused_macros)]
-    macro_rules! debug {
-        ($($a:expr),* $(,)*) => {
-            #[cfg(debug_assertions)]
-            eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
-        };
-    }
-    pub(crate) use debug;
 }
 
 mod competitive_internal_mod {
