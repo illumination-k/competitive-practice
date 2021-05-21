@@ -89,7 +89,9 @@ fn solve() -> impl AtCoderFormat {
     for x in 1..=upper {
         if n % x == 0 {
             let m = n / x - 1;
-
+            if m == 0 {
+                continue;
+            }
             if n / m == n % m {
                 ans += m;
             }
