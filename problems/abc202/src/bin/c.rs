@@ -47,21 +47,22 @@ fn solve() -> impl AtCoderFormat {
         cmap.entry(cc - 1).or_insert(Vec::new()).push(i)
     }
 
-    let mut ans_set = HashSet::new();
-
+    // let mut ans_set = HashSet::new();
+    let mut ans = 0;
     for (i, aa) in a.iter().enumerate() {
         if let Some(b_idxs) = bmap.get(aa) {
             for b_idx in b_idxs.iter() {
                 if let Some(c_idxs) = cmap.get(b_idx) {
-                    for &j in c_idxs.iter() {
-                        ans_set.insert((i, j));
-                    }
+                    // for &j in c_idxs.iter() {
+                    //     ans_set.insert((i, j));
+                    // }
+                    ans += c_idxs.len();
                 }
             }
         }
     }
 
-    ans_set.len()
+    ans
 }
 
 fn main() {
