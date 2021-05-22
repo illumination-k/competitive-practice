@@ -49,7 +49,7 @@ fn solve() -> impl AtCoderFormat {
 
     let mut b_len_map: HashMap<usize, usize> = HashMap::new();
 
-    for bb in b.iter() {
+    for bb in bmap.keys() {
         if let Some(b_idxs) = bmap.get(bb) {
             for b_idx in b_idxs.iter() {
                 if let Some(c_idxs) = cmap.get(b_idx) {
