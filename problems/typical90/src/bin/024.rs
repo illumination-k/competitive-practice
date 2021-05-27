@@ -27,9 +27,16 @@ fn solve() -> impl AtCoderFormat {
         b: [isize; n]
     }
 
-    let diff_sum = (a.iter().sum::<isize>() - b.iter().sum::<isize>()).abs();
+    let mut cnt = 0;
+    for i in 0..n {
+        cnt += (a[i] - b[i]).abs()
+    }
 
-    (diff_sum - k).abs() % 2 == 0 && diff_sum <= k
+    if cnt > k {
+        false
+    } else {
+        (k - cnt) % 2 == 0
+    }
 }
 
 fn main() {
