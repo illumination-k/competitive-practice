@@ -34,11 +34,11 @@ fn dfs(
 ) {
     seen[start] = true;
 
-    for &next in g.neighbors(start) {
-        if seen[next.target()] {
+    for &next in g.neighbors_unweighted(start) {
+        if seen[next] {
             continue;
         }
-        dfs(next.target(), g, last_ptr, seen, last_ord);
+        dfs(next, g, last_ptr, seen, last_ord);
     }
 
     *last_ptr += 1;
@@ -48,11 +48,11 @@ fn dfs(
 fn rev_dfs(start: usize, cur_id: i32, g: &ListGraph<usize>, scc_labels: &mut Vec<i32>) {
     scc_labels[start] = cur_id;
 
-    for &next in g.neighbors(start) {
-        if scc_labels[next.target()] != -1 {
+    for &next in g.neighbors_unweighted(start) {
+        if scc_labels[next] != -1 {
             continue;
         }
-        rev_dfs(next.target(), cur_id, g, scc_labels);
+        rev_dfs(next, cur_id, g, scc_labels);
     }
 }
 
