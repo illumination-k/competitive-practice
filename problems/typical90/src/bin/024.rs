@@ -29,7 +29,7 @@ fn solve() -> impl AtCoderFormat {
 
     let diff_sum = (a.iter().sum::<isize>() - b.iter().sum::<isize>()).abs();
 
-    (diff_sum - k).abs() % 2 == 0
+    (diff_sum - k).abs() % 2 == 0 && diff_sum <= k
 }
 
 fn main() {
