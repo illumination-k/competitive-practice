@@ -85,6 +85,8 @@ fn solve() -> impl AtCoderFormat {
     }
 
     let g: ListGraph<usize> = ListGraph::unweighted_from(ab, n, 1, Direction::DiGraph);
+    eprintln!("{}", g.to_dot(false, &Direction::DiGraph).format());
+    eprintln!("{}", g.t().to_dot(false, &Direction::DiGraph).format());
 
     let scc_labels = scc_composition(&g);
     let label_max = *scc_labels.iter().max().unwrap() + 1;
@@ -92,7 +94,7 @@ fn solve() -> impl AtCoderFormat {
     for &scc_label in scc_labels.iter() {
         counter[scc_label as usize] += 1;
     }
-    let mut ans = 0;
+    let mut ans: usize = 0;
     for cnt in counter {
         ans += ((cnt) * (cnt - 1)) / 2;
     }
