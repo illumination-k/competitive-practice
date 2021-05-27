@@ -24,36 +24,57 @@ const IINF: isize = std::isize::MAX;
 /*
 強連結成分分解
 */
-
-fn dfs(
-    start: usize,
-    g: &ListGraph<usize>,
-    last_ptr: &mut usize,
-    seen: &mut Vec<bool>,
-    last_ord: &mut Vec<usize>,
-) {
-    seen[start] = true;
-
-    for &next in g.neighbors_unweighted(start) {
-        if seen[next] {
-            continue;
+fn scc_composition(g: &ListGraph<usize>) -> Vec<isize> {
+    let n = g.len();
+    let mut seen = vec![false; n];
+    let mut last_ord_nodes = vec![];
+    fn dfs1(
+        start: usize,
+        g: &ListGraph<usize>,
+        seen: &mut Vec<bool>,
+        last_ord_nodes: &mut Vec<usize>,
+    ) {
+        seen[start] = true;
+        for &next in g.neighbors_unweighted(start) {
+            if seen[next] {
+                continue;
+            }
+            dfs1(next, g, seen, last_ord_nodes);
         }
-        dfs(next, g, last_ptr, seen, last_ord);
+        last_ord_nodes.push(start);
     }
 
-    *last_ptr += 1;
-    last_ord[start] = *last_ptr;
-}
-
-fn rev_dfs(start: usize, cur_id: i32, g: &ListGraph<usize>, scc_labels: &mut Vec<i32>) {
-    scc_labels[start] = cur_id;
-
-    for &next in g.neighbors_unweighted(start) {
-        if scc_labels[next] != -1 {
+    for i in 0..n {
+        if seen[i] {
             continue;
         }
-        rev_dfs(next, cur_id, g, scc_labels);
+        dfs1(i, &g, &mut seen, &mut &mut last_ord_nodes);
     }
+    last_ord_nodes.reverse();
+
+    fn dfs2(start: usize, cur_id: isize, g: &ListGraph<usize>, scc_labels: &mut Vec<isize>) {
+        scc_labels[start] = cur_id;
+
+        for &next in g.neighbors_unweighted(start) {
+            if scc_labels[next] != -1 {
+                continue;
+            }
+            dfs2(next, cur_id, g, scc_labels);
+        }
+    }
+
+    let rg = g.t();
+    let mut scc_labels: Vec<isize> = vec![-1; n];
+    let mut cur_id = 0;
+    for &i in last_ord_nodes.iter() {
+        if scc_labels[i] != -1 {
+            continue;
+        }
+        dfs2(i, cur_id, &rg, &mut scc_labels);
+        cur_id += 1;
+    }
+
+    scc_labels
 }
 
 #[fastout]
@@ -64,46 +85,13 @@ fn solve() -> impl AtCoderFormat {
     }
 
     let g: ListGraph<usize> = ListGraph::unweighted_from(ab, n, 1, Direction::DiGraph);
-    let rg = g.t();
 
-    let mut seen = vec![false; n];
-    let mut last_ptr = 0;
-    let mut last_ord = vec![0; n];
-
-    for i in 0..n {
-        if seen[i] {
-            continue;
-        }
-        dfs(i, &g, &mut last_ptr, &mut seen, &mut last_ord);
-    }
-
-    debug!(seen, last_ord);
-    let mut sorted_last_ord = last_ord
-        .iter()
-        .enumerate()
-        .map(|(i, &x)| (x, i))
-        .collect_vec();
-    sorted_last_ord.sort();
-    sorted_last_ord.reverse();
-    debug!(sorted_last_ord);
-    let mut scc_labels = vec![-1; n];
-    let mut cur_id = 0;
-    for &(_, i) in sorted_last_ord.iter() {
-        if scc_labels[i] != -1 {
-            continue;
-        }
-        rev_dfs(i, cur_id, &rg, &mut scc_labels);
-        cur_id += 1;
-    }
-
-    let mut counter = vec![0; cur_id as usize];
-
+    let scc_labels = scc_composition(&g);
+    let label_max = *scc_labels.iter().max().unwrap() + 1;
+    let mut counter = vec![0; label_max as usize];
     for &scc_label in scc_labels.iter() {
         counter[scc_label as usize] += 1;
     }
-
-    debug!(counter);
-
     let mut ans = 0;
     for cnt in counter {
         ans += ((cnt) * (cnt - 1)) / 2;
