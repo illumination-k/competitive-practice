@@ -85,8 +85,6 @@ fn solve() -> impl AtCoderFormat {
     }
 
     let g: ListGraph<usize> = ListGraph::unweighted_from(ab, n, 1, Direction::DiGraph);
-    eprintln!("{}", g.to_dot(false, &Direction::DiGraph).format());
-    eprintln!("{}", g.t().to_dot(false, &Direction::DiGraph).format());
 
     let scc_labels = scc_composition(&g);
     let label_max = *scc_labels.iter().max().unwrap() + 1;
