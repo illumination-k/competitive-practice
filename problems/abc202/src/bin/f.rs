@@ -7,7 +7,6 @@ use num_traits::*;
 use proconio::{fastout, input, marker::*};
 use std::{collections::*, ops::*};
 use superslice::*;
-use whiteread::parse_line;
 
 use itertools::{iproduct, Itertools};
 use itertools_num::ItertoolsNum;
@@ -19,15 +18,9 @@ const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
-fn bit_search(n: usize) {
-    for bit in 0..1 << n {}
-}
-
 #[fastout]
 fn solve() -> impl AtCoderFormat {
-    input! {
-        n: usize
-    }
+    input! {}
 
     ""
 }
@@ -45,4 +38,9 @@ pub mod utils {
         };
     }
     pub(crate) use debug;
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
 }
