@@ -5,7 +5,6 @@
 use num::*;
 use num_traits::*;
 use proconio::{fastout, input, marker::*};
-use std::cmp::Reverse;
 use std::{collections::*, ops::*};
 use superslice::*;
 
@@ -34,9 +33,9 @@ fn solve() -> impl AtCoderFormat {
     let mut pq = BinaryHeap::new();
     let directions = [(0, 1), (1, 0)];
 
-    pq.push((Reverse(0), (0, 0), true));
+    pq.push(((0), (0, 0), true));
 
-    while let Some((Reverse(cost), (x, y), turn)) = pq.pop() {
+    while let Some(((cost), (x, y), turn)) = pq.pop() {
         for &(dx, dy) in directions.iter() {
             let cx = x + dx;
             let cy = y + dy;
@@ -50,31 +49,31 @@ fn solve() -> impl AtCoderFormat {
                 continue;
             }
 
-            if g[(cxu, cyu)] == '-' {
+            let ncost = if g[(cxu, cyu)] == '-' {
                 // red t: -1, a: +1
-                let ncost = if turn {
+                if turn {
                     // takahashi
                     cost - 1
                 } else {
                     // aoki
                     cost + 1
-                };
-
-                dist[cyu][cxu] = Some(ncost);
-                pq.push((Reverse(cost), (cx, cy), !turn))
+                }
             } else {
                 // blue +1
-                let ncost = if turn {
+                if turn {
                     // takahashi
                     cost + 1
                 } else {
                     // aoki
                     cost - 1
-                };
-
-                dist[cyu][cxu] = Some(ncost);
-                pq.push((Reverse(cost), (cx, cy), !turn))
-            }
+                }
+            };
+            debug!("-");
+            debug!(x, y, cxu, cyu, cost, ncost, turn);
+            debug!(pq);
+            eprint!("\n");
+            dist[cyu][cxu] = Some(ncost);
+            pq.push((ncost, (cx, cy), !turn));
         }
     }
     debug!(dist);
