@@ -150,6 +150,7 @@ mod competitive_internal_mod {
             }
         }
     }
+
     pub mod graph2d {
         #[allow(unused_imports)]
         use std::collections::*;
