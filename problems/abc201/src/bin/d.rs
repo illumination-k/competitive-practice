@@ -27,69 +27,9 @@ fn solve() -> impl AtCoderFormat {
     }
 
     let g = Graph2D::new(a);
-    debug!(g);
+    // DP
 
-    let mut dist: Vec<Vec<Option<isize>>> = vec![vec![None; w]; h];
-    let mut pq = BinaryHeap::new();
-    let directions = [(0, 1), (1, 0)];
-
-    pq.push(((0), (0, 0), true));
-
-    while let Some(((cost), (x, y), turn)) = pq.pop() {
-        for &(dx, dy) in directions.iter() {
-            let cx = x + dx;
-            let cy = y + dy;
-
-            if g.is_not_in(cx, cy) {
-                continue;
-            }
-            let (cxu, cyu) = (cx as usize, cy as usize);
-
-            if dist[cyu][cxu].is_some() {
-                continue;
-            }
-
-            let ncost = if g[(cxu, cyu)] == '-' {
-                // red t: -1, a: +1
-                if turn {
-                    // takahashi
-                    cost - 1
-                } else {
-                    // aoki
-                    cost + 1
-                }
-            } else {
-                // blue +1
-                if turn {
-                    // takahashi
-                    cost + 1
-                } else {
-                    // aoki
-                    cost - 1
-                }
-            };
-            debug!("-");
-            debug!(x, y, cxu, cyu, cost, ncost, turn);
-            debug!(pq);
-            eprint!("\n");
-            dist[cyu][cxu] = Some(ncost);
-            pq.push((ncost, (cx, cy), !turn));
-        }
-    }
-    debug!(dist);
-
-    let l = dist[h - 1][w - 1];
-    if l.is_none() {
-        "Draw"
-    } else {
-        if l.unwrap() == 0 {
-            "Draw"
-        } else if l.unwrap() < 0 {
-            "Aoki"
-        } else {
-            "Takahashi"
-        }
-    }
+    ""
 }
 
 fn main() {
