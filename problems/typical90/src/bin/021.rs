@@ -23,9 +23,12 @@ const IINF: isize = std::isize::MAX;
 
 /*
 強連結成分分解
+usizeじゃないとだめだったらしい
 */
 fn scc_composition(g: &ListGraph<usize>) -> Vec<isize> {
     let n = g.len();
+
+    // first DFS
     let mut seen = vec![false; n];
     let mut last_ord_nodes = vec![];
     fn dfs1(
@@ -52,6 +55,8 @@ fn scc_composition(g: &ListGraph<usize>) -> Vec<isize> {
     }
     last_ord_nodes.reverse();
 
+
+    // second DFS
     fn dfs2(start: usize, cur_id: isize, g: &ListGraph<usize>, scc_labels: &mut Vec<isize>) {
         scc_labels[start] = cur_id;
 
