@@ -140,7 +140,7 @@ fn solve() -> impl AtCoderFormat {
     debug!(un);
     ans += un.group_numbers();
 
-    get_union_number(n, xyz)
+    get_union_number(n, &xyz)
 }
 
 fn main() {
