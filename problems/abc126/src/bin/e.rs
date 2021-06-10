@@ -34,6 +34,7 @@ Z_iが偶数なら、A_xi, A_yiは同じ数
 Z_iが奇数なら、A_xi, A_yiは違う数
 
 - 同じやつはグループ分けすれば一発で全部わかる。
+- 違うやつグループもグループに魔法で一発。
 - ヒントがないものは必ず魔法を使う必要がある。
 */
 
@@ -48,6 +49,33 @@ fn get_cards_set(xyz: &Vec<(usize, usize, usize)>) -> HashSet<usize> {
     set
 }
 
+fn get_same_group_labels(n: usize, same: &Vec<(usize, usize, usize)>) -> Vec<usize> {
+    let mut un: UnionFind<usize> = UnionFind::new(n);
+
+    for &(x, y, _) in same.iter() {
+        un.union(x - 1, y - 1);
+    }
+
+    un.into_labeling()
+}
+
+fn make_n_map(s: &HashSet<(usize, usize)>) -> HashMap<usize, usize> {
+    let mut map = HashMap::new();
+    let mut cnt = 0;
+    for &(x, y) in s.iter() {
+        if !map.contains_key(&x) {
+            map.insert(x, cnt);
+            cnt += 1;
+        }
+
+        if !map.contains_key(&y) {
+            map.insert(y, cnt);
+            cnt += 1;
+        }
+    }
+    map
+}
+
 #[fastout]
 fn solve() -> impl AtCoderFormat {
     const MOD: usize = 1_000_000_007;
@@ -59,73 +87,42 @@ fn solve() -> impl AtCoderFormat {
         xyz: [(usize, usize, usize); m]
     }
 
-    let mut un: UnionFind<usize> = UnionFind::new(n);
+    let mut ans = 0;
+    ans += n - get_cards_set(&xyz).len();
 
     let mut same = vec![];
     let mut diff = vec![];
-
-    let mut ans = 0;
-
-    // hintがないものは魔法使用
-    let no_hint_cards = get_cards_set(&xyz);
-    ans += n - no_hint_cards.len();
-
-    debug!("nohint", ans);
-
     for &(x, y, z) in xyz.iter() {
         if z % 2 == 0 {
             same.push((x, y, z))
         } else {
-            diff.push((x, y, z))
+            diff.push((x, y, z));
         }
     }
 
-    for &(x, y, _) in same.iter() {
-        un.union(x - 1, y - 1);
+    let same_group_label = get_same_group_labels(n, &same);
+    let mut n_xy = HashSet::new();
+    for &(x, y, _) in xyz.iter() {
+        n_xy.insert((same_group_label[x - 1], same_group_label[y - 1]));
     }
-    // debug!(un);
-    // 同じグループのラベル
-    let group_mt_1_index = (0..n).filter(|&x| un.size(x) > 1).collect_vec();
-    let group_labels = un.into_labeling();
+    debug!(same_group_label);
+    debug!(n_xy);
+    let nmap = make_n_map(&n_xy);
+    let mut nnxy = HashSet::new();
 
-    let group_mt1_labels: HashSet<usize> =
-        group_mt_1_index.iter().map(|&x| group_labels[x]).collect();
-
-    let group_numbers = group_mt1_labels.len();
-    // ans += un.group_numbers();
-    // debug!("same + nohint", ans);
-
-    // sameに含まれていなくて、diffのsetとしてあるものの数だけ魔法使用
-    let same_set = get_cards_set(&same);
-
-    let mut diff_group_set = HashSet::new();
-    if diff.len() > 0 {
-        for &(x, y, _) in diff.iter() {
-            if !(same_set.contains(&(x - 1)) || same_set.contains(&(y - 1))) {
-                ans += 1;
-            } else {
-                let groups = (group_labels[x - 1], group_labels[y - 1]);
-                diff_group_set.insert(groups);
-            }
-        }
-        ans += diff_group_set.len();
-        // diff groupの中にないもののグループ数だけ必要
-
-        let mut labels_in_diff_group = HashSet::new();
-        for &(x, y) in diff_group_set.iter() {
-            if group_mt1_labels.contains(&x) {
-                labels_in_diff_group.insert(x);
-            };
-            if group_mt1_labels.contains(&y) {
-                labels_in_diff_group.insert(y);
-            };
-        }
-
-        ans += group_numbers - labels_in_diff_group.len();
-    } else {
-        ans += group_numbers;
+    for &(x, y) in n_xy.iter() {
+        nnxy.insert((nmap.get(&x).unwrap(), nmap.get(&y).unwrap()));
     }
+    debug!(nmap);
+    debug!(nnxy);
 
+    let mut un: UnionFind<usize> = UnionFind::new(nmap.len());
+
+    for &(x, y) in nnxy.iter() {
+        un.union(*x, *y);
+    }
+    debug!(un);
+    ans += un.group_numbers();
     ans
 }
 
