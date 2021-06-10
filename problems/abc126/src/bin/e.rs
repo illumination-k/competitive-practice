@@ -36,6 +36,12 @@ Z_iが奇数なら、A_xi, A_yiは違う数
 - 同じやつはグループ分けすれば一発で全部わかる。
 - 違うやつグループもグループに魔法で一発。
 - ヒントがないものは必ず魔法を使う必要がある。
+
+1. 同じグループのものを同じラベルにする(UnionFind)。
+2. 違うグループのものをそのラベルでグループ分けする(UnionFind)。
+3. 2のグループ数と登場していないものの数が答え
+
+正しいが、回答を見るとそもそも一回UnionFindすればいいらしい...
 */
 
 fn get_cards_set(xyz: &Vec<(usize, usize, usize)>) -> HashSet<usize> {
@@ -74,6 +80,16 @@ fn make_n_map(s: &HashSet<(usize, usize)>) -> HashMap<usize, usize> {
         }
     }
     map
+}
+
+fn get_union_number(n: usize, xyz: &Vec<(usize, usize, usize)>) -> usize {
+    let mut un: UnionFind<usize> = UnionFind::new(n);
+
+    for &(x, y, _) in xyz.iter() {
+        un.union(x - 1, y - 1);
+    }
+
+    un.group_numbers()
 }
 
 #[fastout]
@@ -123,7 +139,8 @@ fn solve() -> impl AtCoderFormat {
     }
     debug!(un);
     ans += un.group_numbers();
-    ans
+
+    get_union_number(n, xyz)
 }
 
 fn main() {
