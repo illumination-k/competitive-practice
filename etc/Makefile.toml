@@ -22,3 +22,8 @@ script = "expand_mod --bin ${@}"
 dependencies = ["expand", "autocommit"]
 command = "cargo"
 args = ["atcoder", "submit", "${@}"]
+
+[tasks.submit-force]
+dependencies = ["expand", "autocommit"]
+command = "cargo"
+args = ["atcoder", "submit", "${@}", "--force"]

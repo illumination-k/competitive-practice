@@ -32,6 +32,22 @@ macro_rules! debug {
 全ての隣接ノードが偶数距離なら一つのノードとみなせる。
 */
 
+fn dfs(s: usize, g: &ListGraph<usize>, color: u8, ans: &mut Vec<u8>, seen: &mut Vec<bool>) {
+    seen[s] = true;
+    ans[s] = color;
+
+    for next_edge in g.neighbors(s) {
+        if seen[next_edge.target()] {
+            continue;
+        }
+        if next_edge.weight() % 2 != 0 {
+            dfs(next_edge.target(), g, 1 - color, ans, seen);
+        } else {
+            dfs(next_edge.target(), g, color, ans, seen);
+        }
+    }
+}
+
 #[fastout]
 fn solve() -> impl AtCoderFormat {
     const MOD: usize = 1_000_000_007;
@@ -47,16 +63,12 @@ fn solve() -> impl AtCoderFormat {
     let tree = ListGraph::weighted_from(t, n, 1, Direction::UnGraph);
     // println!("{}", tree.to_dot(true, &Direction::UnGraph).iter().join("\n"));
 
-    let (dist, _) = bfs(&tree, 0);
-    let mut colors = vec![0; n];
+    let mut seen = vec![false; n];
+    let mut ans = vec![0; n];
 
-    for (i, &d) in dist.iter().enumerate() {
-        if d % 2 != 0 {
-            colors[i] = 1;
-        }
-    }
+    dfs(0, &tree, 0, &mut ans, &mut seen);
 
-    colors
+    ans
 }
 
 fn main() {
