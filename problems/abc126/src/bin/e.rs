@@ -109,11 +109,20 @@ fn solve() -> impl AtCoderFormat {
                 diff_group_set.insert(groups);
             }
         }
+        ans += diff_group_set.len();
+        // diff groupの中にないもののグループ数だけ必要
+
+        let mut labels_in_diff_group = HashSet::new();
+        for &(x, y) in diff_group_set.iter() {
+            labels_in_diff_group.insert(x);
+            labels_in_diff_group.insert(y);
+        }
+
+        ans += group_numbers - labels_in_diff_group.len();
     } else {
         ans += group_numbers;
     }
 
-    ans += diff_group_set.len();
     ans
 }
 
