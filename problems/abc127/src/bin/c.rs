@@ -25,20 +25,13 @@ macro_rules! debug {
     };
 }
 
-/*
-A_xi + A_yi + Z
-*/
-
 #[fastout]
 fn solve() -> impl AtCoderFormat {
     const MOD: usize = 1_000_000_007;
     const UINF: usize = std::usize::MAX;
     const IINF: isize = std::isize::MAX;
 
-    input!{
-        n: usize, m: usize,
-        xyz: [(usize, usize, usize); m]
-    }
+    input!{}
     
     ""
 }
