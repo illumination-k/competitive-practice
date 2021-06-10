@@ -88,11 +88,10 @@ fn solve() -> impl AtCoderFormat {
     let group_mt_1_index = (0..n).filter(|&x| un.size(x) > 1).collect_vec();
     let group_labels = un.into_labeling();
 
-    let group_numbers = group_mt_1_index
-        .iter()
-        .map(|&x| group_labels[x])
-        .unique()
-        .count();
+    let group_mt1_labels: HashSet<usize> =
+        group_mt_1_index.iter().map(|&x| group_labels[x]).collect();
+
+    let group_numbers = group_mt1_labels.len();
     // ans += un.group_numbers();
     // debug!("same + nohint", ans);
 
@@ -114,8 +113,12 @@ fn solve() -> impl AtCoderFormat {
 
         let mut labels_in_diff_group = HashSet::new();
         for &(x, y) in diff_group_set.iter() {
-            labels_in_diff_group.insert(x);
-            labels_in_diff_group.insert(y);
+            if group_mt1_labels.contains(&x) {
+                labels_in_diff_group.insert(x);
+            };
+            if group_mt1_labels.contains(&y) {
+                labels_in_diff_group.insert(y);
+            };
         }
 
         ans += group_numbers - labels_in_diff_group.len();
