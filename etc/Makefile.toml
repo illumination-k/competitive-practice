@@ -47,3 +47,17 @@ cargo atcoder submit ${@}
 git add "./src/bin/${@}.rs"
 git commit -m "See Answer! autocommit in ${contest_id}-${@}"
 '''
+
+[tasks.get-wa]
+script = '''
+#!/bin/bash
+
+git log --since=${@}.days --pretty=format:'%h %Cred%d %Cgreen%ad %Cblue%cn %Creset%s' --grep="WA"
+'''
+
+[tasks.get-sa]
+script = '''
+#!/bin/bash
+
+git log --since=${@}.days --pretty=format:'%h %Cred%d %Cgreen%ad %Cblue%cn %Creset%s' --grep="See Answer"
+'''
