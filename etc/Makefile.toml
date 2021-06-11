@@ -36,12 +36,12 @@ if [ $is_test_success -eq 0 ]; then
     is_submit_success=$(echo $submit_result | grep -e "Wrong Answer" -e "CE" -e "TLE" | wc -l)
 
     if [ $is_submit_success -eq 0 ]; then
-        commit_message="AC! autocommit on submission (./src/bin/${@}.rs.)"
+        commit_message="AC!! autocommit in ${contest_id}-${@}"
     else
-        commit_message="WA;; autocommit on submission (./src/bin/${@}.rs.)"
+        commit_message="WA;; autocommit in ${contest_id}-${@}"
     fi
 else
-    commit_message="TEST FAILED. autocommit on submission ${contest_id}-${@}"
+    commit_message="TEST FAILED. autocommit in ${contest_id}-${@}"
 fi
 
 git add "./src/bin/${@}.rs"
