@@ -28,6 +28,7 @@ fn solve() -> impl AtCoderFormat {
 
     let g = Graph2D::new(a);
     // DP
+    let mut dp = Graph2D::new(vec![vec![0; w]; h]);
 
     ""
 }
