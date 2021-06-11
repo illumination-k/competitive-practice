@@ -1,0 +1,15 @@
+_makers() {
+    local -a tasks
+    tasks=(\
+        "run[cargo run]" \
+        "test[run test by cargo atcoder]" \
+        "submit[submit answer and commit the result]" \
+        "submit-sa[you should use this when you see the answer instead of submit]" \
+        "get-wa[get commit log of WA within n days]" \
+        "get-sa[get commit log of see answer within n days]" \
+    )
+
+    _values 'tasks' $tasks
+}
+
+compdef _makers makers
