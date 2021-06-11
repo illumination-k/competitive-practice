@@ -1,12 +1,3 @@
-[tasks.autoadd]
-command = "git"
-args = ["add", "./src/bin/${@}.rs"]
-
-[tasks.autocommit]
-dependencies = ["autoadd"]
-command = "git"
-args = ["commit", "-m", "autocommit on submission (./src/bin/${@}.rs)"]
-
 [tasks.run]
 command = "cargo"
 args = ["run", "--bin", "${@}"]
@@ -18,14 +9,11 @@ args = ["atcoder", "test", "${@}"]
 [tasks.expand]
 script = "expand_mod --bin ${@}"
 
-[tasks.submit-force]
-dependencies = ["expand", "autocommit"]
-command = "cargo"
-args = ["atcoder", "submit", "${@}", "--force"]
-
 [tasks.submit]
-dependencies = ["expand", "autoadd"]
+dependencies = ["expand"]
 script = '''
+#!/bin/bash
+
 contest_id=$(grep "name" Cargo.toml | sed -e 's/name = //g' | sed -e 's/\"//g')
 submit_result=$(script -efq /dev/null -c "cargo atcoder submit ${@}" | tee /dev/tty)
 
@@ -46,4 +34,16 @@ fi
 
 git add "./src/bin/${@}.rs"
 git commit -m "$commit_message"
+'''
+
+[tasks.submit-sa]
+dependencies = ["expand"]
+script = '''
+#!/bin/bash
+
+contest_id=$(grep "name" Cargo.toml | sed -e 's/name = //g' | sed -e 's/\"//g')
+cargo atcoder submit ${@}
+
+git add "./src/bin/${@}.rs"
+git commit -m "See Answer! autocommit in ${contest_id}-${@}"
 '''
