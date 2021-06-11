@@ -4,54 +4,67 @@
 
 use num::*;
 use num_traits::*;
-use proconio::{fastout, input, marker::*};
-use std::{collections::*, ops::*};
+use proconio::marker::*;
+use proconio::{fastout, input};
+use std::collections::*;
+use std::ops::*;
 use superslice::*;
 use whiteread::parse_line;
 
-use itertools::{iproduct, Itertools};
+use itertools::iproduct;
+use itertools::Itertools;
 use itertools_num::ItertoolsNum;
 
 use competitive_internal_mod::format::*;
-use utils::debug;
 
-const MOD: usize = 1_000_000_007;
-const UINF: usize = std::usize::MAX;
-const IINF: isize = std::isize::MAX;
+#[allow(unused_macros)]
+macro_rules! debug {
+    ($($a:expr),* $(,)*) => {
+        #[cfg(debug_assertions)]
+        eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
+    };
+}
 
 #[fastout]
 fn solve() -> impl AtCoderFormat {
+    const MOD: usize = 1_000_000_007;
+    const UINF: usize = std::usize::MAX;
+    const IINF: isize = std::isize::MAX;
+
     input! {
-        n: usize, k: isize,
-        a: [isize; n],
-        b: [isize; n]
+        n: usize, k: usize
     }
 
-    let mut cnt = 0;
-    for i in 0..n {
-        cnt += (a[i] - b[i]).abs()
+    let mut ans = 0.;
+    for i in 1..=n {
+        // iの目が出たときの勝率
+
+        let t = if i >= k {
+            1. / n as f64
+        } else {
+            // 何回表になればいいか -> 何回2で割れるか
+            let mut cnt = 0;
+            let mut val = i;
+            loop {
+                if val >= k {
+                    break;
+                }
+
+                val *= 2;
+                cnt += 1;
+            }
+
+            (1. / n as f64) * (0.5).powi(cnt)
+        };
+
+        ans += t;
     }
 
-    if cnt > k {
-        false
-    } else {
-        (k - cnt) % 2 == 0
-    }
+    ans
 }
 
 fn main() {
     println!("{}", solve().format());
-}
-
-pub mod utils {
-    #[allow(unused_macros)]
-    macro_rules! debug {
-        ($($a:expr),* $(,)*) => {
-            #[cfg(debug_assertions)]
-            eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
-        };
-    }
-    pub(crate) use debug;
 }
 
 mod competitive_internal_mod {

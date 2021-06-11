@@ -4,120 +4,75 @@
 
 use num::*;
 use num_traits::*;
-use proconio::{fastout, input, marker::*};
-use std::vec;
-use std::{collections::*, ops::*};
+use proconio::marker::*;
+use proconio::{fastout, input};
+use std::collections::*;
+use std::ops::*;
 use superslice::*;
 use whiteread::parse_line;
 
-use itertools::{iproduct, Itertools};
+use itertools::iproduct;
+use itertools::Itertools;
 use itertools_num::ItertoolsNum;
 
 use competitive_internal_mod::format::*;
 use competitive_internal_mod::graph::*;
-use utils::debug;
 
-const MOD: usize = 1_000_000_007;
-const UINF: usize = std::usize::MAX;
-const IINF: isize = std::isize::MAX;
+#[allow(unused_macros)]
+macro_rules! debug {
+    ($($a:expr),* $(,)*) => {
+        #[cfg(debug_assertions)]
+        eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
+    };
+}
 
 /*
-強連結成分分解
-usizeじゃないとだめだったらしい
+距離がすべて偶数なら同じ色で塗ればいい。
+奇数距離の隣接ノードは同じ色でぬれない。
+全ての隣接ノードが偶数距離なら一つのノードとみなせる。
 */
-fn scc_composition(g: &ListGraph<usize>) -> Vec<isize> {
-    let n = g.len();
 
-    // first DFS
-    let mut seen = vec![false; n];
-    let mut last_ord_nodes = vec![];
-    fn dfs1(
-        start: usize,
-        g: &ListGraph<usize>,
-        seen: &mut Vec<bool>,
-        last_ord_nodes: &mut Vec<usize>,
-    ) {
-        seen[start] = true;
-        for &next in g.neighbors_unweighted(start) {
-            if seen[next] {
-                continue;
-            }
-            dfs1(next, g, seen, last_ord_nodes);
-        }
-        last_ord_nodes.push(start);
-    }
+fn dfs(s: usize, g: &ListGraph<usize>, color: u8, ans: &mut Vec<u8>, seen: &mut Vec<bool>) {
+    seen[s] = true;
+    ans[s] = color;
 
-    for i in 0..n {
-        if seen[i] {
+    for next_edge in g.neighbors(s) {
+        if seen[next_edge.target()] {
             continue;
         }
-        dfs1(i, &g, &mut seen, &mut &mut last_ord_nodes);
-    }
-    last_ord_nodes.reverse();
-
-
-    // second DFS
-    fn dfs2(start: usize, cur_id: isize, g: &ListGraph<usize>, scc_labels: &mut Vec<isize>) {
-        scc_labels[start] = cur_id;
-
-        for &next in g.neighbors_unweighted(start) {
-            if scc_labels[next] != -1 {
-                continue;
-            }
-            dfs2(next, cur_id, g, scc_labels);
+        if next_edge.weight() % 2 != 0 {
+            dfs(next_edge.target(), g, 1 - color, ans, seen);
+        } else {
+            dfs(next_edge.target(), g, color, ans, seen);
         }
     }
-
-    let rg = g.t();
-    let mut scc_labels: Vec<isize> = vec![-1; n];
-    let mut cur_id = 0;
-    for &i in last_ord_nodes.iter() {
-        if scc_labels[i] != -1 {
-            continue;
-        }
-        dfs2(i, cur_id, &rg, &mut scc_labels);
-        cur_id += 1;
-    }
-
-    scc_labels
 }
 
 #[fastout]
 fn solve() -> impl AtCoderFormat {
+    const MOD: usize = 1_000_000_007;
+    const UINF: usize = std::usize::MAX;
+    const IINF: isize = std::isize::MAX;
+
     input! {
-        n: usize, m: usize,
-        ab: [(usize, usize); m]
+        n: usize,
+        t: [(usize, usize, usize); n-1]
     }
 
-    let g: ListGraph<usize> = ListGraph::unweighted_from(ab, n, 1, Direction::DiGraph);
+    debug!(n);
+    let tree = ListGraph::weighted_from(t, n, 1, Direction::UnGraph);
+    // println!("{}", tree.to_dot(true, &Direction::UnGraph).iter().join("\n"));
 
-    let scc_labels = scc_composition(&g);
-    let label_max = *scc_labels.iter().max().unwrap() + 1;
-    let mut counter = vec![0; label_max as usize];
-    for &scc_label in scc_labels.iter() {
-        counter[scc_label as usize] += 1;
-    }
-    let mut ans: usize = 0;
-    for cnt in counter {
-        ans += ((cnt) * (cnt - 1)) / 2;
-    }
+    let mut seen = vec![false; n];
+    let mut ans = vec![0; n];
+
+    dfs(0, &tree, 0, &mut ans, &mut seen);
 
     ans
 }
 
 fn main() {
     println!("{}", solve().format());
-}
-
-pub mod utils {
-    #[allow(unused_macros)]
-    macro_rules! debug {
-        ($($a:expr),* $(,)*) => {
-            #[cfg(debug_assertions)]
-            eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
-        };
-    }
-    pub(crate) use debug;
 }
 
 mod competitive_internal_mod {
@@ -700,6 +655,69 @@ mod competitive_internal_mod {
             // rec dfs
             _dfs(start, graph, &mut dfs_result);
             dfs_result
+        }
+
+        /// Strongly Connected Component Decomposition  
+        /// Return Labels of each node
+        fn scc_decomposition(g: &ListGraph<usize>) -> Vec<isize> {
+            let n = g.len();
+
+            // first DFS
+            let mut seen = vec![false; n];
+            let mut last_ord_nodes = vec![];
+            fn dfs1(
+                start: usize,
+                g: &ListGraph<usize>,
+                seen: &mut Vec<bool>,
+                last_ord_nodes: &mut Vec<usize>,
+            ) {
+                seen[start] = true;
+                for &next in g.neighbors_unweighted(start) {
+                    if seen[next] {
+                        continue;
+                    }
+                    dfs1(next, g, seen, last_ord_nodes);
+                }
+                last_ord_nodes.push(start);
+            }
+
+            for i in 0..n {
+                if seen[i] {
+                    continue;
+                }
+                dfs1(i, &g, &mut seen, &mut last_ord_nodes);
+            }
+            last_ord_nodes.reverse();
+
+            // second DFS
+            fn dfs2(
+                start: usize,
+                cur_id: isize,
+                g: &ListGraph<usize>,
+                scc_labels: &mut Vec<isize>,
+            ) {
+                scc_labels[start] = cur_id;
+
+                for &next in g.neighbors_unweighted(start) {
+                    if scc_labels[next] != -1 {
+                        continue;
+                    }
+                    dfs2(next, cur_id, g, scc_labels);
+                }
+            }
+
+            let rg = g.t();
+            let mut scc_labels: Vec<isize> = vec![-1; n];
+            let mut cur_id = 0;
+            for &i in last_ord_nodes.iter() {
+                if scc_labels[i] != -1 {
+                    continue;
+                }
+                dfs2(i, cur_id, &rg, &mut scc_labels);
+                cur_id += 1;
+            }
+
+            scc_labels
         }
     }
 }

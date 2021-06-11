@@ -4,54 +4,70 @@
 
 use num::*;
 use num_traits::*;
-use proconio::{fastout, input, marker::*};
-use std::{collections::*, ops::*};
+use proconio::marker::*;
+use proconio::{fastout, input};
+use std::collections::*;
+use std::ops::*;
 use superslice::*;
 use whiteread::parse_line;
 
-use itertools::{iproduct, Itertools};
+use itertools::iproduct;
+use itertools::Itertools;
 use itertools_num::ItertoolsNum;
 
 use competitive_internal_mod::format::*;
-use utils::debug;
 
-const MOD: usize = 1_000_000_007;
-const UINF: usize = std::usize::MAX;
-const IINF: isize = std::isize::MAX;
+#[allow(unused_macros)]
+macro_rules! debug {
+    ($($a:expr),* $(,)*) => {
+        #[cfg(debug_assertions)]
+        eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
+    };
+}
+
+/*
+小さいものを大きいものに置換すればいい
+*/
 
 #[fastout]
 fn solve() -> impl AtCoderFormat {
+    const MOD: usize = 1_000_000_007;
+    const UINF: usize = std::usize::MAX;
+    const IINF: isize = std::isize::MAX;
+
     input! {
-        n: usize, k: isize,
-        a: [isize; n],
-        b: [isize; n]
+        n: usize, m: usize,
+        a: [usize; n],
+        mut bc: [(usize, usize); m]
     }
 
-    let mut cnt = 0;
-    for i in 0..n {
-        cnt += (a[i] - b[i]).abs()
+    let mut bq: BinaryHeap<_> = a.into_iter().map(|x| std::cmp::Reverse(x)).collect();
+    let mut ans = 0;
+
+    bc.sort_by(|a, b| b.1.cmp(&a.1));
+
+    for &(b, c) in bc.iter() {
+        if bq.len() == 0 {
+            break;
+        }
+
+        for _ in 0..b {
+            if let Some(std::cmp::Reverse(val)) = bq.pop() {
+                if val > c {
+                    ans += val;
+                } else {
+                    ans += c;
+                }
+            }
+        }
     }
 
-    if cnt > k {
-        false
-    } else {
-        (k - cnt) % 2 == 0
-    }
+    ans += bq.into_iter().map(|std::cmp::Reverse(x)| x).sum::<usize>();
+    ans
 }
 
 fn main() {
     println!("{}", solve().format());
-}
-
-pub mod utils {
-    #[allow(unused_macros)]
-    macro_rules! debug {
-        ($($a:expr),* $(,)*) => {
-            #[cfg(debug_assertions)]
-            eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
-        };
-    }
-    pub(crate) use debug;
 }
 
 mod competitive_internal_mod {
@@ -116,7 +132,27 @@ mod competitive_internal_mod {
         impl_format!(f64);
         impl_format!(&str);
         impl_format!(String);
-        impl_format!(char);
+
+        impl AtCoderFormat for char {
+            fn format(&self) -> String {
+                self.to_string()
+            }
+        }
+
+        impl AtCoderFormat for Vec<char> {
+            fn format(&self) -> String {
+                self.iter().collect::<String>()
+            }
+        }
+
+        impl AtCoderFormat for Vec<Vec<char>> {
+            fn format(&self) -> String {
+                self.iter()
+                    .map(|v| v.format())
+                    .collect::<Vec<String>>()
+                    .join("\n")
+            }
+        }
 
         impl AtCoderFormat for bool {
             fn format(&self) -> String {
