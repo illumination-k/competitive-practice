@@ -16,7 +16,7 @@ use itertools::Itertools;
 use itertools_num::ItertoolsNum;
 
 use competitive_internal_mod::format::*;
-
+//
 #[allow(unused_macros)]
 macro_rules! debug {
     ($($a:expr),* $(,)*) => {
