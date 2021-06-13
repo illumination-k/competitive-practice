@@ -5,6 +5,7 @@
 use num::*;
 use num_traits::*;
 use proconio::{fastout, input, marker::*};
+use rand::seq;
 use std::{collections::*, ops::*};
 use superslice::*;
 
@@ -28,14 +29,55 @@ fn solve() -> impl AtCoderFormat {
 
     a.sort();
 
-    let mut ans = vec![];
-    for &k in query.iter() {
-        let f_idx = a.upper_bound(&k);
-        // debug!(f_idx, a[f_idx]);
-        let idx = a.upper_bound(&(k + f_idx));
-        ans.push(k + idx);
+    /*
+    連続した部分を圧縮する。
+    */
+
+    let mut store = vec![(0, 0, 0)];
+    let mut sequence_num = 0;
+    let mut last = a[0];
+    for i in 0..n {
+        // 連続数を記録
+        sequence_num += 1;
+        if i == n - 1 {
+            store.push((last, a[i], sequence_num))
+        } else {
+            if a[i] + 1 == a[i + 1] {
+                continue;
+            } else {
+                store.push((last, a[i], sequence_num));
+                last = a[i + 1];
+            }
+        }
     }
 
+    let mut ans = vec![];
+
+    for &k in query.iter() {
+        let mut f_i = store.lower_bound_by(|a| a.0.cmp(&k));
+        let b_i = store.lower_bound_by(|x| x.1.cmp(&k));
+
+        if f_i >= store.len() {
+            ans.push(k + n);
+        } else {
+            if store[f_i].0 > k {
+                f_i -= 1;
+            }
+            let nk = k + store[f_i].2;
+            ans.push(nk);
+        }
+
+        // let mut nf_i = store.lower_bound_by(|x| x.0.cmp(&nk));
+        // debug!(nk, nf_i);
+
+        // if store[nf_i].0 > k {
+        //     nf_i -= 1;
+        // }
+
+        // ans.push(nk + store[nf_i].2);
+    }
+
+    debug!(store);
     ans
 }
 
