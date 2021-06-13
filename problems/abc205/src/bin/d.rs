@@ -55,26 +55,30 @@ fn solve() -> impl AtCoderFormat {
 
     for &k in query.iter() {
         let mut f_i = store.lower_bound_by(|a| a.0.cmp(&k));
-        let b_i = store.lower_bound_by(|x| x.1.cmp(&k));
+        // let b_i = store.lower_bound_by(|x| x.1.cmp(&k));
 
         if f_i >= store.len() {
             ans.push(k + n);
-        } else {
-            if store[f_i].0 > k {
-                f_i -= 1;
-            }
-            let nk = k + store[f_i].2;
-            ans.push(nk);
+            continue;
+        }
+        if store[f_i].0 > k {
+            f_i -= 1;
+        }
+        let nk = k + store[f_i].2;
+        ans.push(nk);
+
+        let mut nf_i = store.lower_bound_by(|x| x.0.cmp(&nk));
+        debug!(nk, nf_i);
+        if nf_i >= store.len() {
+            ans.push(k + n);
+            continue;
         }
 
-        // let mut nf_i = store.lower_bound_by(|x| x.0.cmp(&nk));
-        // debug!(nk, nf_i);
+        if store[nf_i].0 > k {
+            nf_i -= 1;
+        }
 
-        // if store[nf_i].0 > k {
-        //     nf_i -= 1;
-        // }
-
-        // ans.push(nk + store[nf_i].2);
+        ans.push(nk + store[nf_i].2);
     }
 
     debug!(store);
