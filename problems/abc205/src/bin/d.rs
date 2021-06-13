@@ -31,7 +31,7 @@ fn solve() -> impl AtCoderFormat {
     let mut ans = vec![];
     for &k in query.iter() {
         let f_idx = a.upper_bound(&k);
-        debug!(f_idx, a[f_idx]);
+        // debug!(f_idx, a[f_idx]);
         let idx = a.upper_bound(&(k + f_idx));
         ans.push(k + idx);
     }
