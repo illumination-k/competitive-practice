@@ -65,7 +65,7 @@ fn solve() -> impl AtCoderFormat {
             f_i -= 1;
         }
         let nk = k + store[f_i].2;
-        ans.push(nk);
+        // ans.push(nk);
 
         let mut nf_i = store.lower_bound_by(|x| x.0.cmp(&nk));
         debug!(nk, nf_i);
@@ -78,7 +78,7 @@ fn solve() -> impl AtCoderFormat {
             nf_i -= 1;
         }
 
-        ans.push(nk + store[nf_i].2);
+        ans.push(k + store[nf_i].2);
     }
 
     debug!(store);
