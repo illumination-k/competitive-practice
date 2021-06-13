@@ -23,10 +23,10 @@ const IINF: isize = std::isize::MAX;
 fn solve() -> impl AtCoderFormat {
     input! {
         n: usize, q: usize,
-        mut a: [usize; n],
+        pa: [usize; n],
         query: [usize; q]
     }
-
+    let mut a = pa.into_iter().unique().collect_vec();
     a.sort();
 
     /*
