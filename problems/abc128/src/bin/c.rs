@@ -31,7 +31,16 @@ fn solve() -> impl AtCoderFormat {
     const UINF: usize = std::usize::MAX;
     const IINF: isize = std::isize::MAX;
 
-    input!{}
+    let (n, m): (usize, usize) = parse_line().unwrap();
+
+    let mut switchs = vec![vec![]; m];
+    for _ in 0..n {
+        let v: Vec<usize> = parse_line().unwrap();
+    }
+
+    let p: Vec<usize> = parse_line().unwrap();
+
+    debug!(p);
     
     ""
 }
