@@ -20,13 +20,8 @@ const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
-#[fastout]
-fn solve() -> impl AtCoderFormat {
-    input! {
-        n: usize,
-        a: [usize; n]
-    }
-
+fn answer(a: Vec<usize>) -> usize {
+    let n = a.len();
     let mut set: HashSet<(usize, usize)> = HashSet::new();
     let mut nset = HashSet::new();
 
@@ -44,8 +39,12 @@ fn solve() -> impl AtCoderFormat {
     }
 
     debug!(set);
+    if nset.len() == 0 {
+        return 0;
+    }
+    let max = *nset.iter().max().unwrap();
 
-    let mut un: UnionFind<usize> = UnionFind::new(n);
+    let mut un: UnionFind<usize> = UnionFind::new(max);
 
     for &(x, y) in set.iter() {
         un.union(x - 1, y - 1);
@@ -54,7 +53,7 @@ fn solve() -> impl AtCoderFormat {
     let mut ans = 0;
     let u = un.into_labeling();
 
-    let mut label2size = vec![0; n];
+    let mut label2size = vec![0; max];
     let mut labels = HashSet::new();
     for &i in nset.iter() {
         labels.insert(u[i - 1]);
@@ -72,6 +71,16 @@ fn solve() -> impl AtCoderFormat {
     }
 
     ans
+}
+
+#[fastout]
+fn solve() -> impl AtCoderFormat {
+    input! {
+        n: usize,
+        a: [usize; n]
+    }
+
+    answer(a)
 }
 
 fn main() {
@@ -92,6 +101,15 @@ pub mod utils {
 #[cfg(test)]
 mod test {
     use super::*;
+    use competitive::test_utility::*;
+
+    #[test]
+    fn test() {
+        for _ in 0..1000 {
+            let a: Vec<usize> = make_random_vec(100, (1, 1000));
+            answer(a);
+        }
+    }
 }
 
 mod competitive_internal_mod {
