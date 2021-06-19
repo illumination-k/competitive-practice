@@ -68,11 +68,7 @@ fn solve() -> impl AtCoderFormat {
 
     for &label in labels.iter() {
         let size = label2size[label];
-        if size % 2 == 0 {
-            ans += size / 2;
-        } else {
-            ans += size / 2 + 1;
-        }
+        ans += size - 1;
     }
 
     ans
