@@ -19,20 +19,7 @@ const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
-#[fastout]
-fn solve() -> impl AtCoderFormat {
-    input! {
-        n: usize, q: usize,
-        pa: [usize; n],
-        query: [usize; q]
-    }
-    let mut a = pa.into_iter().unique().collect_vec();
-    a.sort();
-
-    /*
-    連続した部分を圧縮する。
-    */
-
+fn count(n: usize, a: Vec<usize>, query: Vec<usize>) -> Vec<usize> {
     let mut store = vec![(0, 0, 0)];
     let mut sequence_num = 0;
     let mut last = a[0];
@@ -83,6 +70,23 @@ fn solve() -> impl AtCoderFormat {
 
     debug!(store);
     ans
+}
+
+#[fastout]
+fn solve() -> impl AtCoderFormat {
+    input! {
+        n: usize, q: usize,
+        pa: [usize; n],
+        query: [usize; q]
+    }
+    let mut a = pa.into_iter().unique().collect_vec();
+    a.sort();
+
+    /*
+    連続した部分を圧縮する。
+    */
+
+    count(n, a, query)
 }
 
 fn main() {
