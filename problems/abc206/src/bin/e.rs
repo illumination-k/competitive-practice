@@ -78,6 +78,8 @@ fn solve() -> impl AtCoderFormat {
         }
 
         fact_multiple_count += r_not_coprime - i_not_coprime;
+
+        // 自分自身で割れるものは除く。
         fact_multiple_count -= r / i - 1;
         // debug!(i, r_not_coprime, i_not_coprime, fact_multiple_count);
         ans += fact_multiple_count * 2;

@@ -2,17 +2,17 @@
 #![allow(unused_imports)]
 #![allow(dead_code)]
 
-use proconio::{input, fastout};
-use proconio::marker::*;
-use whiteread::parse_line;
-use std::collections::*;
 use num::*;
 use num_traits::*;
-use superslice::*;
+use proconio::marker::*;
+use proconio::{fastout, input};
+use std::collections::*;
 use std::ops::*;
+use superslice::*;
+use whiteread::parse_line;
 
-use itertools::Itertools;
 use itertools::iproduct;
+use itertools::Itertools;
 use itertools_num::ItertoolsNum;
 
 use competitive::format::*;
@@ -31,8 +31,8 @@ fn solve() -> impl AtCoderFormat {
     const UINF: usize = std::usize::MAX;
     const IINF: isize = std::isize::MAX;
 
-    input!{}
-    
+    input! {}
+
     ""
 }
 

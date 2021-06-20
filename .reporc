@@ -1,12 +1,12 @@
 _makers() {
     local -a tasks
     tasks=(\
-        "run[cargo run]" \
-        "test[run test by cargo atcoder]" \
-        "submit[submit answer and commit the result]" \
+        "run[alias of cargo run]" \
+        "test[alias of cargo atcoder test]" \
+        "submit[submit answer via cargo atcoder and commit the result]" \
         "submit-sa[you should use this when you see the answer instead of submit]" \
-        "get-wa[get commit log of WA within n days]" \
-        "get-sa[get commit log of see answer within n days]" \
+        "get-wa[get commit log of WA within n days. default: n=7]" \
+        "get-sa[get commit log of see answer within n days. default: n=7]" \
     )
 
     _values 'tasks' $tasks
