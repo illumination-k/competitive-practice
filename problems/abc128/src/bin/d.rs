@@ -37,6 +37,11 @@ fn solve() -> impl AtCoderFormat {
     }
 
     let vq: VecDeque<isize> = v.into_iter().collect();
+    if vq.len() == 1 {
+        if vq[0] > 0 {
+            return vq[0];
+        }
+    }
 
     // 何も取らない、が許されているので0が最小
     let mut ans = 0;
