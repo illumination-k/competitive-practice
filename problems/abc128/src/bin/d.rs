@@ -46,7 +46,7 @@ fn solve() -> impl AtCoderFormat {
     // 何も取らない、が許されているので0が最小
     let mut ans = 0;
 
-    for mut com in (0..k).combinations_with_replacement(2) {
+    for mut com in (0..=k).combinations_with_replacement(2) {
         com.push(k);
         let left = com[0];
         let right = com[1] - com[0];
