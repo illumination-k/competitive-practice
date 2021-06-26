@@ -33,11 +33,11 @@ fn solve() -> impl AtCoderFormat {
     let mut m = a;
     let mut r = 0;
 
-    while m >= r * d {
-        debug!(m, r * d);
+    while m > r {
+        debug!(m, r);
         ans += 1;
         m += b;
-        r += c;
+        r += c * d;
     }
     debug!(m, r * d);
     ans
