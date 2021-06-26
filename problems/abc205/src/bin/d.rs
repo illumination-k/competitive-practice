@@ -66,6 +66,7 @@ fn count(n: usize, a: Vec<usize>, query: Vec<usize>) -> Vec<usize> {
         }
 
         ans.push(k + store[nf_i].2);
+        ans.extend(iter)
     }
 
     debug!(store);
