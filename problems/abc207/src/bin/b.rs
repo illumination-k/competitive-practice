@@ -24,7 +24,7 @@ fn solve() -> impl AtCoderFormat {
         a: usize, b: usize, c: usize, d: usize
     }
 
-    if b > c || (d == 1 && b >= c) {
+    if b >= c * d {
         return -1;
     }
 
