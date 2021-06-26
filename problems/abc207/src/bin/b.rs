@@ -24,7 +24,7 @@ fn solve() -> impl AtCoderFormat {
         a: usize, b: usize, c: usize, d: usize
     }
 
-    if b > c {
+    if b > c || (d == 1 && b >= c) {
         return -1;
     }
 
@@ -34,12 +34,12 @@ fn solve() -> impl AtCoderFormat {
     let mut r = 0;
 
     while m >= r * d {
-        debug!(m / d, m, r);
+        debug!(m, r * d);
         ans += 1;
         m += b;
         r += c;
     }
-
+    debug!(m, r * d);
     ans
 }
 
