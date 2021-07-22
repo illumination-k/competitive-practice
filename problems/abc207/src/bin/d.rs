@@ -32,19 +32,19 @@ fn solve() -> impl AtCoderFormat {
     let sp = s.into_iter().map(|p| Point::new(p.0, p.1)).collect_vec();
     let mut tp = t.into_iter().map(|p| Point::new(p.0, p.1)).collect_vec();
     tp.sort_by(|a, b| a.partial_cmp(b).unwrap());
-    for com in (0..n).combinations_with_replacement(2) {
+    for com in iproduct!((0..n), (0..n)) {
         // 100 ** 2
         debug!(com);
 
-        let diff = sp[com[0]] - tp[com[1]];
+        let diff = sp[com.0] - tp[com.1];
 
         let mut nsp = vec![];
 
-        for &s in sp.iter() {
+        for (i, &s) in sp.iter().enumerate() {
             nsp.push(s + diff);
         }
 
-        for r in 0..=360 {
+        for r in (0..=360).step_by(90) {
             let mut tmp_points = nsp.clone();
 
             for i in 0..n {
@@ -53,7 +53,7 @@ fn solve() -> impl AtCoderFormat {
 
             tmp_points.sort_by(|a, b| a.partial_cmp(b).unwrap());
 
-            // debug!(r, tmp_points);
+            debug!(r, tmp_points);
 
             let mut tflag = false;
             for (s1, t1) in izip!(tmp_points.iter(), tp.iter()) {
@@ -64,7 +64,12 @@ fn solve() -> impl AtCoderFormat {
             }
 
             if tflag {
+                debug!("ok", r, tmp_points);
                 flag = true;
+                break;
+            }
+
+            if flag {
                 break;
             }
         }
