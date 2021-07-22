@@ -37,7 +37,7 @@ fn stupid_ans(n: usize, t: &[usize]) {
     println!("{}", ans);
 }
 
-fn ok(x: usize, t: &[usize]) -> bool {
+fn dp(x: usize, t: &[usize]) -> Vec<Vec<bool>> {
     let mut dp = vec![vec![false; x + 1]; t.len() + 1];
     dp[0][0] = true;
 
@@ -50,7 +50,7 @@ fn ok(x: usize, t: &[usize]) -> bool {
         }
     }
 
-    dp[t.len()][x]
+    dp
 }
 
 #[fastout]
@@ -63,13 +63,13 @@ fn solve() -> impl AtCoderFormat {
 
     let sum_t: usize = t.iter().sum();
     let mut ans = UINF;
-    for x in (0..=sum_t / 2).rev() {
-        if ok(x, &t) {
+
+    let res = dp(sum_t / 2, &t);
+    for x in 0..=sum_t / 2 {
+        if res[n][x] {
             ans = sum_t - x;
-            break;
         }
     }
-
     ans
 }
 
