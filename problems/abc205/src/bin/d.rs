@@ -2,6 +2,7 @@
 #![allow(unused_imports)]
 #![allow(dead_code)]
 
+use maplit::*;
 use num::*;
 use num_traits::*;
 use proconio::{fastout, input, marker::*};
@@ -19,60 +20,6 @@ const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
-fn count(n: usize, a: Vec<usize>, query: Vec<usize>) -> Vec<usize> {
-    let mut store = vec![(0, 0, 0)];
-    let mut sequence_num = 0;
-    let mut last = a[0];
-    for i in 0..n {
-        // 連続数を記録
-        sequence_num += 1;
-        if i == n - 1 {
-            store.push((last, a[i], sequence_num))
-        } else {
-            if a[i] + 1 == a[i + 1] {
-                continue;
-            } else {
-                store.push((last, a[i], sequence_num));
-                last = a[i + 1];
-            }
-        }
-    }
-
-    let mut ans = vec![];
-
-    for &k in query.iter() {
-        let mut f_i = store.lower_bound_by(|a| a.0.cmp(&k));
-        // let b_i = store.lower_bound_by(|x| x.1.cmp(&k));
-
-        if f_i >= store.len() {
-            ans.push(k + n);
-            continue;
-        }
-        if store[f_i].0 > k {
-            f_i -= 1;
-        }
-        let nk = k + store[f_i].2;
-        // ans.push(nk);
-
-        let mut nf_i = store.lower_bound_by(|x| x.0.cmp(&nk));
-        debug!(nk, nf_i);
-        if nf_i >= store.len() {
-            ans.push(k + n);
-            continue;
-        }
-
-        if store[nf_i].0 > k {
-            nf_i -= 1;
-        }
-
-        ans.push(k + store[nf_i].2);
-        ans.extend(iter)
-    }
-
-    debug!(store);
-    ans
-}
-
 #[fastout]
 fn solve() -> impl AtCoderFormat {
     input! {
@@ -83,11 +30,26 @@ fn solve() -> impl AtCoderFormat {
     let mut a = pa.into_iter().unique().collect_vec();
     a.sort();
 
-    /*
-    連続した部分を圧縮する。
-    */
+    let mut good_numbers = vec![];
 
-    count(n, a, query)
+    for (i, &elem) in a.iter().enumerate() {
+        good_numbers.push(elem - i - 1);
+    }
+
+    debug!(good_numbers);
+
+    let mut ans = vec![];
+    for &ki in query.iter() {
+        let cn = *good_numbers.last().unwrap();
+        if cn < ki {
+            ans.push(*a.last().unwrap() + ki - cn);
+        } else {
+            let i = good_numbers.lower_bound(&ki);
+            ans.push(a[i] - 1 - good_numbers[i] + ki);
+        }
+    }
+
+    ans
 }
 
 fn main() {
