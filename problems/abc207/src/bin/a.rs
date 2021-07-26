@@ -2,11 +2,9 @@
 #![allow(unused_imports)]
 #![allow(dead_code)]
 
-use maplit::*;
 use num::*;
 use num_traits::*;
 use proconio::{fastout, input, marker::*};
-use rand::seq;
 use std::{collections::*, ops::*};
 use superslice::*;
 
@@ -23,30 +21,13 @@ const IINF: isize = std::isize::MAX;
 #[fastout]
 fn solve() -> impl AtCoderFormat {
     input! {
-        n: usize, q: usize,
-        pa: [usize; n],
-        query: [usize; q]
-    }
-    let mut a = pa.into_iter().unique().collect_vec();
-    a.sort();
-
-    let mut good_numbers = vec![];
-
-    for (i, &elem) in a.iter().enumerate() {
-        good_numbers.push(elem - i - 1);
+        v: [usize; 3],
     }
 
-    debug!(good_numbers);
+    let mut ans = 0;
 
-    let mut ans = vec![];
-    for &ki in query.iter() {
-        let cn = *good_numbers.last().unwrap();
-        if cn < ki {
-            ans.push(*a.last().unwrap() + ki - cn);
-        } else {
-            let i = good_numbers.lower_bound(&ki);
-            ans.push(a[i] - 1 - good_numbers[i] + ki);
-        }
+    for c in v.iter().combinations(2) {
+        ans = std::cmp::max(ans, *c[0] + *c[1]);
     }
 
     ans
@@ -70,6 +51,10 @@ pub mod utils {
 #[cfg(test)]
 mod test {
     use super::*;
+    use competitive::test_utility::*;
+
+    #[test]
+    fn test() {}
 }
 
 mod competitive_internal_mod {

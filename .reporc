@@ -1,3 +1,6 @@
+
+export PATH="$PATH:$(git root)/bin"
+
 _makers() {
     local -a tasks
     tasks=(\
