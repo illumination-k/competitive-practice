@@ -13,3 +13,20 @@ _makers() {
 }
 
 compdef _makers makers
+
+if has_cmd ghq; then
+    function peco-problems() {
+        local selected_dir=$(ls $(git root)/problems | peco --query "$LBUFFER")
+        if [ -n "$selected_dir" ]; then
+            if has_cmd code; then
+                BUFFER="code ${selected_dir}"
+            else
+                BUFFER="cd ${selected_dir}"
+            fi
+            zle accept-line
+        fi
+        zle clear-screen 
+    }
+    zle -N peco-problems
+    bindkey '^[p' peco-problems
+fi
