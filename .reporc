@@ -33,3 +33,9 @@ if has_cmd ghq; then
     zle -N peco-problems
     bindkey '^[p' peco-problems
 fi
+
+function configcp() {
+    local config_path="${HOME}/.config/cargo-atcoder.toml"
+    local toml_path="$(git root)/etc/cargo-atcoder.toml"
+    cp ${toml_path} ${config_path} -f --update
+}
