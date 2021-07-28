@@ -30,7 +30,7 @@ fn solve() -> impl AtCoderFormat {
 
     let count = bfs_with_cnt(&g, 0);
     debug!(count);
-
+    println!("{}", g.to_dot().join("\n"));
     count[n - 1]
 }
 
@@ -304,7 +304,7 @@ mod competitive_internal_mod {
             ///     (3, 2, 5),
             /// ];
             /// let graph: ListGraph<isize> = ListGraph::weighted_from(&vec, 4, 0, Direction::DiGraph);
-            /// let dot = graph.to_dot(true, &Direction::DiGraph);
+            /// let dot = graph.to_dot();
             /// assert_eq!(
             ///     dot,
             ///     vec![
@@ -319,7 +319,7 @@ mod competitive_internal_mod {
             ///     ].iter().map(|x| x.to_string()).collect::<Vec<String>>()
             /// )
             /// ```
-            pub fn to_dot(&self, weighted: bool, graph_type: &Direction) -> Vec<String> {
+            pub fn to_dot(&self) -> Vec<String> {
                 fn make_dot_edge<W>(
                     source: usize,
                     target: usize,
@@ -346,27 +346,45 @@ mod competitive_internal_mod {
                         Direction::UnGraph => {
                             if weighted {
                                 format!(
-                                    "  {} -> {} [ label = {}, dir = both ]",
+                                    "  {} -- {} [ label = {} ]",
                                     source,
                                     target,
                                     weight.to_string()
                                 )
                             } else {
-                                format!("  {} -> {} [ dir = both ]", source, target)
+                                format!("  {} -- {}", source, target)
                             }
                         }
                     }
                 }
 
+                let graph_type = self.direction;
+                let weighted = self.weighted;
+
                 let mut seen_edge = HashSet::new();
                 let mut dot = match graph_type {
                     Direction::DiGraph => vec!["digraph digraph_example {".to_string()],
-                    Direction::UnGraph => vec!["digraph ungraph_example {".to_string()],
+                    Direction::UnGraph => vec!["graph ungraph_example {".to_string()],
                 };
                 for source in 0..self.len() {
                     for e in self.neighbors(source) {
                         let (target, weight) = (e.target(), e.weight());
-                        let dot_edge = make_dot_edge(source, target, weight, weighted, &graph_type);
+                        let dot_edge = match self.direction {
+                            Direction::DiGraph => {
+                                make_dot_edge(source, target, weight, weighted, &graph_type)
+                            }
+                            Direction::UnGraph => {
+                                let mut vec_for_sort = vec![source, target];
+                                vec_for_sort.sort();
+                                make_dot_edge(
+                                    vec_for_sort[0],
+                                    vec_for_sort[1],
+                                    weight,
+                                    weighted,
+                                    &graph_type,
+                                )
+                            }
+                        };
                         if seen_edge.contains(&dot_edge) {
                             continue;
                         }
@@ -403,6 +421,8 @@ mod competitive_internal_mod {
         #[derive(Clone)]
         pub struct ListGraph<W> {
             graph: Vec<Vec<Edge<W>>>,
+            direction: Direction,
+            weighted: bool,
         }
 
         impl<W> fmt::Debug for ListGraph<W>
@@ -426,7 +446,7 @@ mod competitive_internal_mod {
             }
         }
 
-        #[derive(Debug, Clone)]
+        #[derive(Debug, Clone, Copy)]
         pub enum Direction {
             DiGraph,
             UnGraph,
@@ -452,9 +472,11 @@ mod competitive_internal_mod {
         where
             W: Clone + One + Copy,
         {
-            pub fn new(n: usize) -> Self {
+            pub fn new(n: usize, direction: Direction, weighed: bool) -> Self {
                 Self {
                     graph: vec![vec![]; n],
+                    direction: direction,
+                    weighted: weighed,
                 }
             }
 
@@ -463,16 +485,20 @@ mod competitive_internal_mod {
             /// graph_type: Undirect or Direct  
             pub fn unweighted_from(
                 edges: &[(usize, usize)],
-                size: usize,
+                node_size: usize,
                 offset: usize,
                 graph_type: Direction,
             ) -> Self {
-                let mut graph = vec![vec![]; size];
+                let mut graph = vec![vec![]; node_size];
                 for &(a, b) in edges.iter() {
                     add_target(a - offset, b - offset, W::one(), &graph_type, &mut graph)
                 }
 
-                Self { graph }
+                Self {
+                    graph,
+                    direction: graph_type,
+                    weighted: false,
+                }
             }
 
             /// create weighted ListGraph<W>.
@@ -480,16 +506,20 @@ mod competitive_internal_mod {
             /// graph_type: Undirect or Direct
             pub fn weighted_from(
                 edges: &[(usize, usize, W)],
-                size: usize,
+                node_size: usize,
                 offset: usize,
                 graph_type: Direction,
             ) -> Self {
-                let mut graph = vec![vec![]; size];
+                let mut graph = vec![vec![]; node_size];
                 for &(a, b, w) in edges.iter() {
                     add_target(a - offset, b - offset, w, &graph_type, &mut graph)
                 }
 
-                Self { graph }
+                Self {
+                    graph,
+                    direction: graph_type,
+                    weighted: true,
+                }
             }
 
             /// Reverse Direction of Graph
