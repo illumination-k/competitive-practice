@@ -22,9 +22,9 @@ if has_cmd ghq; then
         local selected_dir=$(ls $(git root)/problems | peco --query "$LBUFFER")
         if [ -n "$selected_dir" ]; then
             if has_cmd code; then
-                BUFFER="code ${selected_dir}"
+                BUFFER="code $(git root)/problems/${selected_dir}"
             else
-                BUFFER="cd ${selected_dir}"
+                BUFFER="cd $(git root)/problems/${selected_dir}"
             fi
             zle accept-line
         fi
