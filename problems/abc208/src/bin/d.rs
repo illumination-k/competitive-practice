@@ -34,10 +34,15 @@ fn solve() -> impl AtCoderFormat {
 
     let mut ans = 0;
 
-    for s in 0..n {
-        for t in 0..n {
-            for k in 0..n {
+    for k in 0..n {
+        for s in 0..n {
+            for t in 0..n {
                 chmin!(dist[s][t], dist[s][k] + dist[k][t]);
+            }
+        }
+
+        for s in 0..n {
+            for t in 0..n {
                 if dist[s][t] < inf {
                     ans += dist[s][t]
                 }
