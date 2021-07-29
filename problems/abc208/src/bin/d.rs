@@ -10,42 +10,11 @@ use num_traits::*;
 use proconio::{fastout, input, marker::*};
 use std::{collections::*, ops::*};
 use superslice::*;
-use utils::debug;
+use utils::*;
 
 const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
-
-fn diktstra(g: &ListGraph<usize>, s: usize, k: usize) -> (Vec<usize>, Vec<usize>) {
-    use std::cmp::Reverse;
-    let mut dist = vec![UINF; g.len()];
-    dist[s] = 0;
-    let mut bq = BinaryHeap::new();
-    let mut prev_nodes = vec![UINF; g.len()];
-
-    bq.push((Reverse(Edge::new(0, 0)), s));
-    while let Some((Reverse(edge), pos)) = bq.pop() {
-        if dist[pos] < edge.weight() {
-            continue;
-        }
-
-        for &e in g.neighbors(pos) {
-            if !(e.target() < k) {
-                continue;
-            }
-
-            if dist[e.target()] <= dist[pos] + e.weight() {
-                continue;
-            }
-
-            bq.push((Reverse(e), e.target()));
-            dist[e.target()] = dist[pos] + e.weight();
-            prev_nodes[e.target()] = pos;
-        }
-    }
-
-    (dist, prev_nodes)
-}
 
 #[fastout]
 fn solve() -> impl AtCoderFormat {
@@ -54,39 +23,28 @@ fn solve() -> impl AtCoderFormat {
         abc: [(usize, usize, usize); m]
     }
 
-    let g: ListGraph<usize> = ListGraph::weighted_from(&abc, n, 1, Direction::DiGraph);
-    let rg = g.t();
-    debug!(g);
+    let inf = 10e9 as usize;
+    let mut dist = vec![vec![inf; n]; n];
+    for i in 0..n {
+        dist[i][i] = 0;
+    }
+    for &(a, b, c) in abc.iter() {
+        dist[a - 1][b - 1] = c;
+    }
 
     let mut ans = 0;
-    for k in 1..=n {
-        for s in 0..n {
-            let (dist, _) = diktstra(&g, s, k);
-            debug!(k, s, dist);
 
-            for t in 0..n {
-                if dist[t] == UINF {
-                    // debug!(t, rg[t]);
-                    let mut add = UINF;
-                    for e in rg.neighbors(t) {
-                        if dist[e.target()] != UINF {
-                            // debug!(e.target(), dist[e.target()], e.weight());
-                            // debug!(s, t, k, dist[e.target()] + e.weight());
-                            let d = dist[e.target()] + e.weight();
-                            add = std::cmp::min(d, add);
-                        }
-                    }
-                    if add != UINF {
-                        ans += add;
-                    }
-                } else {
-                    debug!(s, t, k, dist[t]);
-                    ans += dist[t];
+    for s in 0..n {
+        for t in 0..n {
+            for k in 0..n {
+                chmin!(dist[s][t], dist[s][k] + dist[k][t]);
+                if dist[s][t] < inf {
+                    ans += dist[s][t]
                 }
             }
         }
     }
-    // println!("{}", rg.to_dot(true, &Direction::DiGraph).join("\n"));
+
     ans
 }
 fn main() {
