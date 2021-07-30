@@ -73,22 +73,27 @@ use superslice::*;
 use itertools::{iproduct, Itertools};
 use itertools_num::ItertoolsNum;
 use competitive::format::*;
-use utils::debug;
+use utils::*;
+
 const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
+
 #[fastout]
-fn solve() -> impl AtCoderFormat {
+fn run() -> impl AtCoderFormat {
     input! {}
     ""
 }
+
 fn main() {
-    println!("{}", solve().format());
+    println!("{}", run().format());
 }
+
 #[cfg(test)]
 mod test {
     use super::*;
 }
+
 pub mod utils {
     #[allow(unused_macros)]
     macro_rules! debug {
