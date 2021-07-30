@@ -26,18 +26,15 @@ fn run() -> impl AtCoderFormat {
 
     // 見ていくのは[(0, 0)], [(1, 0), (0, 1)], [(2, 0), (1, 1), (0, 2)], [(2, 1), (1, 2)], [(2, 2)]
     let mut ans = 1;
-    // y側を0に固定
-    for x in 0..w {
-        // start (x, 0) -> (x-1, 1) -> (x-2, 2) ... (0, x) end
-        let mut v = vec![(x, 0)];
-        let mut cnt = 0;
-        if x == 0 {
-            debug!(v);
-            continue;
-        }
-        while x - cnt != 0 {
-            cnt += 1;
-            v.push((x - cnt, cnt));
+
+    for sum in 0..=(h + w - 2) {
+        let mut v = vec![];
+        for x in 0..w {
+            for y in 0..h {
+                if x + y == sum {
+                    v.push((x, y))
+                }
+            }
         }
 
         let mut r = 0;
@@ -55,34 +52,7 @@ fn run() -> impl AtCoderFormat {
             return 0;
         } else if r == 0 && b == 0 {
             ans *= 2;
-        }
-    }
-
-    // x側をw-1に固定
-    for mut y in 1..h {
-        let mut v = vec![((w - 1), y)];
-        let mut cnt = 1;
-        while y < h - 1 {
-            v.push((w - 1 - cnt, y + cnt));
-            cnt += 1;
-            y += 1
-        }
-        debug!(v);
-
-        let mut r = 0;
-        let mut b = 0;
-        for &(x, y) in v.iter() {
-            if s[y][x] == 'R' {
-                r += 1;
-            } else if s[y][x] == 'B' {
-                b += 1;
-            }
-        }
-
-        if r > 0 && b > 0 {
-            return 0;
-        } else if r == 0 && b == 0 {
-            ans *= 2;
+            ans %= 998244353;
         }
     }
 
@@ -96,6 +66,7 @@ fn main() {
 #[cfg(test)]
 mod test {
     use super::*;
+    use competitive::test_utility;
 }
 
 pub mod utils {
