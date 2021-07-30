@@ -44,7 +44,7 @@ fn run() -> impl AtCoderFormat {
                 &a[v[i]..]
             };
             debug!(vv);
-            let or = vv.iter().fold(1, |acc, &x| (acc | x));
+            let or = vv.iter().fold(vv[0], |acc, &x| (acc | x));
             debug!(or);
             t ^= or;
         }
