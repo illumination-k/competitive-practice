@@ -24,6 +24,10 @@ fn run() -> impl AtCoderFormat {
         n: usize, t: [usize; n]
     }
 
+    if t.len() == 1 {
+        return t[0];
+    }
+
     let lcm = lcm_list(t);
 
     lcm
