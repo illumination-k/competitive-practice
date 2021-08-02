@@ -1,0 +1,90 @@
+[tasks.initp]
+script = '''
+#!/bin/bash
+
+if [ -z ${@} ]; then
+    exit 1
+fi
+
+python $(git root)/bin/extract_template.py > ./src/bin/${@}.rs
+'''
+
+[tasks.run]
+command = "cargo"
+args = ["run", "--bin", "${@}"]
+
+[tasks.test]
+command = "cargo"
+args = ["atcoder", "test", "${@}"]
+
+[tasks.expand]
+script = "expand_mod --bin ${@}"
+
+[tasks.submit]
+dependencies = ["expand"]
+script = '''
+#!/bin/bash
+
+contest_id=$(grep "name" Cargo.toml | sed -e 's/name = //g' | sed -e 's/\"//g')
+submit_result=$(script -efq /dev/null -c "cargo atcoder submit ${@}" | tee /dev/tty)
+
+is_test_success=$(echo $submit_result | grep "FAILED" | wc -l)
+
+if [ $is_test_success -eq 0 ]; then
+    
+    is_submit_success=$(echo $submit_result | grep -e "Wrong Answer" -e "CE" -e "TLE" -e "Runtime" | wc -l)
+
+    if [ $is_submit_success -eq 0 ]; then
+        commit_message="AC!! autocommit in ${contest_id}-${@}. link: https://atcoder.jp/contests/${contest_id}/tasks/${contest_id}_${@}"
+    else
+        commit_message="WA;; autocommit in ${contest_id}-${@}. link: https://atcoder.jp/contests/${contest_id}/tasks/${contest_id}_${@}"
+    fi
+else
+    commit_message="TEST FAILED. autocommit in ${contest_id}-${@}"
+fi
+
+git add "./src/bin/${@}.rs"
+git commit -m "$commit_message"
+'''
+
+[tasks.submit-sa]
+dependencies = ["expand"]
+script = '''
+#!/bin/bash
+
+contest_id=$(grep "name" Cargo.toml | sed -e 's/name = //g' | sed -e 's/\"//g')
+cargo atcoder submit ${@}
+
+git add "./src/bin/${@}.rs"
+git commit -m "See Answer! autocommit in ${contest_id}-${@}. link: https://atcoder.jp/contests/${contest_id}/tasks/${contest_id}_${@}"
+'''
+
+[tasks.get-wa]
+script = '''
+#!/bin/bash
+
+if [ -n ${@} ]; then
+    val=${@}
+else
+    val=7
+fi
+
+git log --since=${@}.days --pretty=format:'%h %Cred%d %Cgreen%ad %Cblue%cn %Creset%s' --grep="WA"
+'''
+
+[tasks.get-sa]
+script = '''
+#!/bin/bash
+
+if [ -n ${@} ]; then
+    val=${@}
+else
+    val=7
+fi
+
+git log --since=${@}.days --pretty=format:'%h %Cred%d %Cgreen%ad %Cblue%cn %Creset%s' --grep="See Answer"
+'''
+
+[tasks.echo]
+command = "echo"
+args = ["${@}"]

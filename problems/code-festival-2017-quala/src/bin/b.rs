@@ -3,14 +3,14 @@
 #![allow(dead_code)]
 #![allow(unused_macros)]
 
+use competitive::format::*;
+use itertools::{iproduct, Itertools};
+use itertools_num::ItertoolsNum;
 use num::*;
 use num_traits::*;
 use proconio::{fastout, input, marker::*};
 use std::{collections::*, ops::*};
 use superslice::*;
-use itertools::{iproduct, Itertools};
-use itertools_num::ItertoolsNum;
-use competitive::format::*;
 use utils::*;
 
 const MOD: usize = 1_000_000_007;
@@ -19,8 +19,19 @@ const IINF: isize = std::isize::MAX;
 
 #[fastout]
 fn run() -> impl AtCoderFormat {
-    input! {}
-    0
+    input! {
+        n: usize, m: usize, k: usize,
+    }
+
+    let mut ans = false;
+    for (i, j) in iproduct!(0..=n, 0..=m) {
+        if i * (m - j) + (n - i) * j == k {
+            ans = true;
+            break;
+        }
+    }
+
+    ans
 }
 
 fn main() {
