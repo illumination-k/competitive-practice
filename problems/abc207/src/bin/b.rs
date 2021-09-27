@@ -2,11 +2,9 @@
 #![allow(unused_imports)]
 #![allow(dead_code)]
 
-use maplit::*;
 use num::*;
 use num_traits::*;
 use proconio::{fastout, input, marker::*};
-use rand::seq;
 use std::{collections::*, ops::*};
 use superslice::*;
 
@@ -23,32 +21,25 @@ const IINF: isize = std::isize::MAX;
 #[fastout]
 fn solve() -> impl AtCoderFormat {
     input! {
-        n: usize, q: usize,
-        pa: [usize; n],
-        query: [usize; q]
-    }
-    let mut a = pa.into_iter().unique().collect_vec();
-    a.sort();
-
-    let mut good_numbers = vec![];
-
-    for (i, &elem) in a.iter().enumerate() {
-        good_numbers.push(elem - i - 1);
+        a: usize, b: usize, c: usize, d: usize
     }
 
-    debug!(good_numbers);
-
-    let mut ans = vec![];
-    for &ki in query.iter() {
-        let cn = *good_numbers.last().unwrap();
-        if cn < ki {
-            ans.push(*a.last().unwrap() + ki - cn);
-        } else {
-            let i = good_numbers.lower_bound(&ki);
-            ans.push(a[i] - 1 - good_numbers[i] + ki);
-        }
+    if b >= c * d {
+        return -1;
     }
 
+    let mut ans = 0;
+
+    let mut m = a;
+    let mut r = 0;
+
+    while m > r {
+        debug!(m, r);
+        ans += 1;
+        m += b;
+        r += c * d;
+    }
+    debug!(m, r * d);
     ans
 }
 
@@ -70,6 +61,10 @@ pub mod utils {
 #[cfg(test)]
 mod test {
     use super::*;
+    use competitive::test_utility::*;
+
+    #[test]
+    fn test() {}
 }
 
 mod competitive_internal_mod {

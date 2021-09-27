@@ -2,11 +2,9 @@
 #![allow(unused_imports)]
 #![allow(dead_code)]
 
-use maplit::*;
 use num::*;
 use num_traits::*;
 use proconio::{fastout, input, marker::*};
-use rand::seq;
 use std::{collections::*, ops::*};
 use superslice::*;
 
@@ -23,29 +21,30 @@ const IINF: isize = std::isize::MAX;
 #[fastout]
 fn solve() -> impl AtCoderFormat {
     input! {
-        n: usize, q: usize,
-        pa: [usize; n],
-        query: [usize; q]
-    }
-    let mut a = pa.into_iter().unique().collect_vec();
-    a.sort();
-
-    let mut good_numbers = vec![];
-
-    for (i, &elem) in a.iter().enumerate() {
-        good_numbers.push(elem - i - 1);
+        n: usize,
+        tlr: [(usize, usize, usize); n]
     }
 
-    debug!(good_numbers);
+    let mut ans: usize = 0;
 
-    let mut ans = vec![];
-    for &ki in query.iter() {
-        let cn = *good_numbers.last().unwrap();
-        if cn < ki {
-            ans.push(*a.last().unwrap() + ki - cn);
-        } else {
-            let i = good_numbers.lower_bound(&ki);
-            ans.push(a[i] - 1 - good_numbers[i] + ki);
+    for i in 0..n {
+        for j in i + 1..n {
+            let (t1, l1, r1) = tlr[i];
+            let (t2, l2, r2) = tlr[j];
+
+            if (l1 <= l2 && l2 <= r1)
+                || (l1 <= r2 && r2 <= r1)
+                || (l2 <= r1 && r1 <= r2)
+                || (l2 <= l1 && l1 <= r2)
+            {
+                if (l1 == r2 && ((t1 == 3 || t1 == 4) || (t2 == 2 || t2 == 4)))
+                    || (l2 == r1 && ((t1 == 2 || t1 == 4) || (t2 == 3 || t2 == 4)))
+                {
+                    continue;
+                }
+                // println!("1: {} {}, 2: {} {}", l1, r1, l2, r2);
+                ans += 1;
+            }
         }
     }
 
@@ -70,6 +69,10 @@ pub mod utils {
 #[cfg(test)]
 mod test {
     use super::*;
+    use competitive::test_utility::*;
+
+    #[test]
+    fn test() {}
 }
 
 mod competitive_internal_mod {

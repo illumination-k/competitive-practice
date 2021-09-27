@@ -1,3 +1,6 @@
+
+export PATH="$PATH:$(git root)/bin"
+
 _makers() {
     local -a tasks
     tasks=(\
@@ -13,3 +16,36 @@ _makers() {
 }
 
 compdef _makers makers
+
+if has_cmd ghq; then
+    function peco-problems() {
+        local selected_dir=$(ls $(git root)/problems | peco --query "$LBUFFER")
+        if [ -n "$selected_dir" ]; then
+            if has_cmd code; then
+                BUFFER="code $(git root)/problems/${selected_dir}"
+            else
+                BUFFER="cd $(git root)/problems/${selected_dir}"
+            fi
+            zle accept-line
+        fi
+        zle clear-screen 
+    }
+    zle -N peco-problems
+    bindkey '^[p' peco-problems
+fi
+
+function configcp() {
+    local config_path="${HOME}/.config/cargo-atcoder.toml"
+    local toml_path="$(git root)/etc/cargo-atcoder.toml"
+    cp ${toml_path} ${config_path} -f --update
+}
+
+function showlog() {
+    if [ -z "$1" ]; then
+        exit 1
+    fi
+    
+    local f="src/bin/${1}.rs"
+    local hash=$(git log --pretty=format:'%h %Cred%d %Cgreen%ad %Creset%s' --date=short -- $f | peco | col 1)
+    git show ${hash}:problems/$(basename $(pwd))/${f} | bat -l rs
+}

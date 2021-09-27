@@ -2,11 +2,9 @@
 #![allow(unused_imports)]
 #![allow(dead_code)]
 
-use maplit::*;
 use num::*;
 use num_traits::*;
 use proconio::{fastout, input, marker::*};
-use rand::seq;
 use std::{collections::*, ops::*};
 use superslice::*;
 
@@ -14,46 +12,80 @@ use itertools::{iproduct, Itertools};
 use itertools_num::ItertoolsNum;
 
 use competitive_internal_mod::format::*;
-use utils::debug;
+use utils::{chmax, debug};
 
 const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
-#[fastout]
-fn solve() -> impl AtCoderFormat {
-    input! {
-        n: usize, q: usize,
-        pa: [usize; n],
-        query: [usize; q]
+fn stupid_ans(n: usize, t: &[usize]) {
+    let mut ans = UINF;
+    let ts: HashSet<usize> = (0..n).collect();
+    for bit in 0..1 << n {
+        let mut v = HashSet::new();
+        for i in 0..n {
+            if 1 << i & bit != 0 {
+                v.insert(i);
+            }
+        }
+
+        let a1 = v.iter().fold(0, |acc, &i| acc + t[i]);
+        let a2 = (&ts - &v).iter().fold(0, |acc, &i| acc + t[i]);
+        ans = std::cmp::min(ans, std::cmp::max(a1, a2));
     }
-    let mut a = pa.into_iter().unique().collect_vec();
-    a.sort();
 
-    let mut good_numbers = vec![];
+    println!("{}", ans);
+}
 
-    for (i, &elem) in a.iter().enumerate() {
-        good_numbers.push(elem - i - 1);
-    }
+fn dp(x: usize, t: &[usize]) -> Vec<Vec<bool>> {
+    let mut dp = vec![vec![false; x + 1]; t.len() + 1];
+    dp[0][0] = true;
 
-    debug!(good_numbers);
-
-    let mut ans = vec![];
-    for &ki in query.iter() {
-        let cn = *good_numbers.last().unwrap();
-        if cn < ki {
-            ans.push(*a.last().unwrap() + ki - cn);
-        } else {
-            let i = good_numbers.lower_bound(&ki);
-            ans.push(a[i] - 1 - good_numbers[i] + ki);
+    for i in 0..t.len() {
+        for j in 0..=x {
+            dp[i + 1][j] |= dp[i][j];
+            if j >= t[i] {
+                dp[i + 1][j] |= dp[i][j - t[i]]
+            }
         }
     }
 
+    dp
+}
+
+#[fastout]
+fn solve() -> impl AtCoderFormat {
+    input! {
+        n: usize,
+        mut t: [usize; n]
+    }
+    t.sort();
+
+    let sum_t: usize = t.iter().sum();
+    let mut ans = UINF;
+
+    let res = dp(sum_t / 2, &t);
+    for x in 0..=sum_t / 2 {
+        if res[n][x] {
+            ans = sum_t - x;
+        }
+    }
     ans
 }
 
 fn main() {
     println!("{}", solve().format());
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_stupid_ans() {
+        let t = vec![3, 14, 15, 9, 26, 5, 35, 89, 79];
+        stupid_ans(9, &t);
+    }
 }
 
 pub mod utils {
@@ -64,12 +96,73 @@ pub mod utils {
             eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
         };
     }
-    pub(crate) use debug;
-}
 
-#[cfg(test)]
-mod test {
-    use super::*;
+    #[allow(unused_macros)]
+    macro_rules! chmin {
+        ($base:expr, $($cmps:expr),+ $(,)*) => {{
+            let cmp_min = min!($($cmps),+);
+            if $base > cmp_min {
+                $base = cmp_min;
+                true;
+            } else {
+                false;
+            }
+        }};
+    }
+
+    #[allow(unused_macros)]
+    macro_rules! chmax {
+        ($base:expr, $($cmps:expr),+ $(,)*) => {{
+            let cmp_max = max!($($cmps),+);
+            if $base < cmp_max {
+                $base = cmp_max;
+                true;
+            } else {
+                false;
+            }
+        }};
+    }
+
+    #[allow(unused_macros)]
+    macro_rules! min {
+        ($a:expr $(,)*) => {{
+            $a
+        }};
+        ($a:expr, $b:expr $(,)*) => {{
+            std::cmp::min($a, $b)
+        }};
+        ($a:expr, $($rest:expr),+ $(,)*) => {{
+            std::cmp::min($a, min!($($rest),+))
+        }};
+    }
+
+    #[allow(unused_macros)]
+    macro_rules! max {
+        ($a:expr $(,)*) => {{
+            $a
+        }};
+        ($a:expr, $b:expr $(,)*) => {{
+            std::cmp::max($a, $b)
+        }};
+        ($a:expr, $($rest:expr),+ $(,)*) => {{
+            std::cmp::max($a, max!($($rest),+))
+        }};
+    }
+
+    #[allow(unused_imports)]
+    pub(crate) use chmax;
+
+    #[allow(unused_imports)]
+    pub(crate) use chmin;
+
+    #[allow(unused_imports)]
+    pub(crate) use debug;
+
+    #[allow(unused_imports)]
+    pub(crate) use max;
+
+    #[allow(unused_imports)]
+    pub(crate) use min;
 }
 
 mod competitive_internal_mod {
