@@ -1,10 +1,13 @@
-[tasks.initp]
+[tasks.init]
 script = '''
 #!/bin/bash
 
 if [ -z ${@} ]; then
     exit 1
 fi
+
+
+echo "initialize ${@}"
 
 python $(git root)/bin/extract_template.py > ./src/bin/${@}.rs
 '''
