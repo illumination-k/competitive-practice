@@ -35,6 +35,9 @@ fn run() -> impl AtCoderFormat {
     let mut ans = 0;
 
     for &(b, c) in bc.iter() {
+        if a.len() == 0 {
+            break;
+        }
         for _ in 0..b {
             if let Some(val) = a.pop() {
                 debug!(val);
