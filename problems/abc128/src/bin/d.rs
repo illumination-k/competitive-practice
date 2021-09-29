@@ -1,96 +1,140 @@
 #![allow(non_snake_case)]
 #![allow(unused_imports)]
 #![allow(dead_code)]
+#![allow(unused_macros)]
 
-use itertools::iproduct;
-use itertools::Itertools;
+use competitive_internal_mod::format::*;
+use itertools::{iproduct, Itertools};
 use itertools_num::ItertoolsNum;
 use num::*;
 use num_traits::*;
-use proconio::marker::*;
-use proconio::{fastout, input};
-use std::cmp::Reverse;
-use std::collections::*;
-use std::ops::*;
+use proconio::{fastout, input, marker::*};
+use std::{collections::*, ops::*};
 use superslice::*;
-use whiteread::parse_line;
+use utils::*;
 
-use competitive_internal_mod::format::*;
-
-#[macro_export]
-macro_rules! debug {
-    ($($a:expr),* $(,)*) => {
-        #[cfg(debug_assertions)]
-        eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
-    };
-}
+const MOD: usize = 1_000_000_007;
+const UINF: usize = std::usize::MAX;
+const IINF: isize = std::isize::MAX;
 
 #[fastout]
-fn solve() -> impl AtCoderFormat {
-    const MOD: usize = 1_000_000_007;
-    const UINF: usize = std::usize::MAX;
-    const IINF: isize = std::isize::MAX;
-
+fn run() -> impl AtCoderFormat {
     input! {
         n: usize, k: usize,
-        v: [isize; n]
+        a: [i64; n]
     }
 
-    let vq: VecDeque<isize> = v.into_iter().collect();
-    if vq.len() == 1 {
-        if vq[0] > 0 {
-            return vq[0];
-        }
-    }
-
-    // 何も取らない、が許されているので0が最小
+    let a = VecDeque::from(a);
     let mut ans = 0;
-
-    for mut com in (0..=k).combinations_with_replacement(2) {
-        com.push(k);
-        let left = com[0];
+    for com in (0..=k).combinations_with_replacement(2) {
+        debug!(com);
+        let mut new_a = a.clone();
+        let left = k - com[1];
         let right = com[1] - com[0];
-        let ret = com[2] - com[1];
+        let return_limit = com[0];
+        assert_eq!(left + right + return_limit, k);
 
-        debug!(left, right, ret);
-
-        let mut tvq = vq.clone();
-        let mut bq = BinaryHeap::new();
-
+        let mut vals = vec![];
         for _ in 0..left {
-            if let Some(l) = tvq.pop_front() {
-                bq.push(Reverse(l));
+            if let Some(val) = new_a.pop_front() {
+                vals.push(val)
             }
         }
 
         for _ in 0..right {
-            if let Some(r) = tvq.pop_back() {
-                bq.push(Reverse(r));
+            if let Some(val) = new_a.pop_back() {
+                vals.push(val)
             }
         }
 
-        debug!(bq);
+        vals.sort();
+        vals.reverse();
 
-        for _ in 0..ret {
-            if let Some(Reverse(b)) = bq.pop() {
-                if b > 0 {
-                    bq.push(Reverse(b));
-                    break;
-                }
+        // println!("left: {}, right: {}, limit: {}", left, right, return_limit);
+        // println!("vals: {:?}", vals);
+
+        for _ in 0..return_limit {
+            if vals.last() < Some(&0) {
+                vals.pop();
             }
         }
 
-        debug!(bq);
-
-        let sum = bq.iter().map(|&Reverse(x)| x).sum::<isize>();
-        ans = std::cmp::max(sum, ans);
+        chmax!(ans, vals.iter().sum::<i64>())
     }
 
     ans
 }
 
 fn main() {
-    println!("{}", solve().format());
+    println!("{}", run().format());
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+}
+
+pub mod utils {
+    macro_rules! debug {
+        ($($a:expr),* $(,)*) => {
+            #[cfg(debug_assertions)]
+            eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
+        };
+    }
+
+    macro_rules! chmin {
+        ($base:expr, $($cmps:expr),+ $(,)*) => {{
+            let cmp_min = min!($($cmps),+);
+            if $base > cmp_min {
+                $base = cmp_min;
+                true;
+            } else {
+                false;
+            }
+        }};
+    }
+
+    macro_rules! chmax {
+        ($base:expr, $($cmps:expr),+ $(,)*) => {{
+            let cmp_max = max!($($cmps),+);
+            if $base < cmp_max {
+                $base = cmp_max;
+                true;
+            } else {
+                false;
+            }
+        }};
+    }
+
+    macro_rules! min {
+        ($a:expr $(,)*) => {{
+            $a
+        }};
+        ($a:expr, $b:expr $(,)*) => {{
+            std::cmp::min($a, $b)
+        }};
+        ($a:expr, $($rest:expr),+ $(,)*) => {{
+            std::cmp::min($a, min!($($rest),+))
+        }};
+    }
+
+    macro_rules! max {
+        ($a:expr $(,)*) => {{
+            $a
+        }};
+        ($a:expr, $b:expr $(,)*) => {{
+            std::cmp::max($a, $b)
+        }};
+        ($a:expr, $($rest:expr),+ $(,)*) => {{
+            std::cmp::max($a, max!($($rest),+))
+        }};
+    }
+
+    pub(crate) use chmax;
+    pub(crate) use chmin;
+    pub(crate) use debug;
+    pub(crate) use max;
+    pub(crate) use min;
 }
 
 mod competitive_internal_mod {
