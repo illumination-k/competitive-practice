@@ -58,6 +58,10 @@ impl<T: Hash + Ord + Copy> MultiSet<T> {
     pub fn max(&self) -> Option<T> {
         self.inner_map.iter().last().map(|x| *x.0)
     }
+
+    pub fn empty(&self) -> bool {
+        self.inner_map.is_empty()
+    }
 }
 
 #[derive(Debug)]
@@ -99,7 +103,7 @@ fn run() -> impl AtCoderFormat {
         ));
     }
 
-    events.sort_by(|a, b| a.1.val.cmp(&b.1.val));
+    events.sort_by(|a, b| a.0.cmp(&b.0));
     let mut res: MultiSet<usize> = MultiSet::new();
 
     let mut ans = vec![];
