@@ -18,22 +18,24 @@ const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
 #[derive(Debug, Clone)]
-struct MultiSet<T> {
-    inner_map: BTreeMap<T, usize>,
+pub struct BMultiSet<T> {
+    pub inner_map: BTreeMap<T, usize>,
 }
 
-impl<T: Hash + Ord + Copy> MultiSet<T> {
+impl<T: Ord> BMultiSet<T> {
     pub fn new() -> Self {
         Self {
             inner_map: BTreeMap::new(),
         }
     }
 
-    pub fn insert(&mut self, x: T) -> Option<T> {
+    /// Insert Value
+    pub fn insert(&mut self, x: T) {
         *self.inner_map.entry(x).or_insert(0) += 1;
-        Some(x)
     }
 
+    /// Decrement count of the value.  
+    /// If count is zero, remove this value.
     pub fn erase_one(&mut self, x: T) -> Option<T> {
         if let Some(count) = self.inner_map.get_mut(&x) {
             *count -= 1;
@@ -46,32 +48,40 @@ impl<T: Hash + Ord + Copy> MultiSet<T> {
         }
     }
 
+    /// Return count of value
+    pub fn count(&self, x: &T) -> Option<&usize> {
+        self.inner_map.get(x)
+    }
+
+    /// Remove value regradless of count
     pub fn erase_all(&mut self, x: T) -> Option<T> {
         self.inner_map.remove(&x);
         Some(x)
     }
 
-    pub fn min(&self) -> Option<T> {
-        self.inner_map.iter().nth(0).map(|x| *x.0)
+    pub fn min(&self) -> Option<&T> {
+        self.inner_map.iter().nth(0).map(|x| x.0)
     }
 
-    pub fn max(&self) -> Option<T> {
-        self.inner_map.iter().last().map(|x| *x.0)
+    pub fn max(&self) -> Option<&T> {
+        self.inner_map.iter().last().map(|x| x.0)
     }
 
-    pub fn empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.inner_map.is_empty()
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, PartialOrd)]
 enum Action {
     Insert,
     Delete,
+    Query,
 }
 
 #[derive(Debug)]
 struct Event {
+    pos: usize,
     val: usize,
     action: Action,
 }
@@ -87,47 +97,43 @@ fn run() -> impl AtCoderFormat {
     let mut events = vec![];
 
     for &(s, t, x) in stx.iter() {
-        events.push((
-            s.saturating_sub(x),
-            Event {
-                val: x,
-                action: Action::Insert,
-            },
-        ));
-        events.push((
-            t.saturating_sub(x),
-            Event {
-                val: x,
-                action: Action::Delete,
-            },
-        ));
+        events.push(Event {
+            pos: s.saturating_sub(x),
+            val: x,
+            action: Action::Insert,
+        });
+        events.push(Event {
+            pos: t.saturating_sub(x),
+            val: x,
+            action: Action::Delete,
+        });
     }
 
-    events.sort_by(|a, b| a.0.cmp(&b.0));
-    let mut res: MultiSet<usize> = MultiSet::new();
+    for (i, &x) in d.iter().enumerate() {
+        events.push(Event {
+            pos: x,
+            val: i,
+            action: Action::Query,
+        })
+    }
 
-    let mut ans = vec![];
-    let mut k = 0;
-    for i in 0..d.len() {
-        debug!(i, res);
-        while k < events.len() && events[k].0 <= d[i] {
-            match events[k].1.action {
-                Action::Insert => {
-                    res.insert(events[k].1.val);
-                }
-                Action::Delete => {
-                    res.erase_one(events[k].1.val);
-                }
-            }
-            k += 1;
-        }
+    events.sort_by(|a, b| a.pos.cmp(&b.pos));
+    debug!(events);
+    let mut res: BMultiSet<usize> = BMultiSet::new();
+    let mut ans = vec![-1; q];
 
-        match res.min() {
-            Some(x) => {
-                ans.push(x as i64);
+    for event in events.iter() {
+        match event.action {
+            Action::Insert => {
+                res.insert(event.val);
             }
-            None => {
-                ans.push(-1);
+            Action::Delete => {
+                res.erase_one(event.val);
+            }
+            Action::Query => {
+                if let Some(m) = res.min() {
+                    ans[event.val] = *m as i64;
+                }
             }
         }
     }
