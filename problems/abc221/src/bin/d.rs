@@ -18,14 +18,14 @@ const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
-#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Hash, Ord)]
 enum Action {
+    Query,
     Insert,
     Delete,
-    Query,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, PartialOrd, Ord)]
 struct Event {
     pos: usize,
     action: Action,
@@ -64,7 +64,7 @@ fn run() -> impl AtCoderFormat {
         events.push(query)
     }
 
-    events.sort_by(|a, b| a.pos.cmp(&b.pos));
+    events.sort();
     let mut ans = vec![0; n];
 
     let mut count = 0;
