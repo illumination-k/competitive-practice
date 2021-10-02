@@ -23,7 +23,7 @@ fn run() -> impl AtCoderFormat {
         a: usize, b: usize
     }
 
-    (a - b).pow(32u32)
+    32usize.pow((a - b) as u32)
 }
 
 fn main() {
