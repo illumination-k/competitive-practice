@@ -19,14 +19,7 @@ const IINF: isize = std::isize::MAX;
 
 #[fastout]
 fn run() -> impl AtCoderFormat {
-    input! {
-        n: usize,
-        a: [usize; n]
-    }
-    let mut a_with_index = a.into_iter().enumerate().map(|(i, x)| (x, i)).collect_vec();
-    a_with_index.sort();
-
-    debug!(a_with_index);
+    input! {}
     0
 }
 
