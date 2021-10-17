@@ -24,6 +24,10 @@ fn run() -> impl AtCoderFormat {
         ab: [(f64, f64); n]
     }
 
+    if n == 1 {
+        return ab[0].0 / 2.;
+    }
+
     let vel = ab.iter().map(|&(a, b)| a / b).collect_vec();
     let vel_cumsum = vel.iter().cumsum::<f64>().collect_vec();
     let collision_s = vel.iter().sum::<f64>() / 2.;
