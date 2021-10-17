@@ -19,31 +19,8 @@ const IINF: isize = std::isize::MAX;
 
 #[fastout]
 fn run() -> impl AtCoderFormat {
-    input! {
-        n: usize, k: usize,
-        a: [usize; n]
-    }
-
-    let a_cumsum = a.iter().cloned().chain(std::iter::once(0)).cumsum().collect::<Vec<usize>>();
-    debug!(a_cumsum);
-
-    let mut ans = 0;
-    for i in 0..a_cumsum.len() {
-        debug!(a_cumsum[i], k);
-        let q = if i != 0 {
-            a_cumsum[i] - a_cumsum[0] + k 
-        } else {
-            k + a_cumsum[i]
-        };
-
-        let index = a_cumsum.lower_bound(&q);
-        debug!(q, index);
-        if index < a_cumsum.len() {
-            ans += n - index + 1;
-        }
-    }
-    
-    ans
+    input! {}
+    0
 }
 
 fn main() {
