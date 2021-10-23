@@ -13,6 +13,8 @@ use std::{collections::*, ops::*};
 use superslice::*;
 use utils::*;
 
+use competitive::list_graph::*;
+
 const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
