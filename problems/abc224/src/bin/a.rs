@@ -26,7 +26,7 @@ fn run() -> impl AtCoderFormat {
     if s.ends_with("er") {
         "er"
     } else {
-        "est"
+        "ist"
     }
 }
 
