@@ -1,150 +1,109 @@
 #![allow(non_snake_case)]
 #![allow(unused_imports)]
 #![allow(dead_code)]
-
-use num::*;
-use num_traits::*;
-use petgraph::graph::UnGraph;
-use proconio::marker::*;
-use proconio::{fastout, input};
-use std::collections::*;
-use std::ops::*;
-use superslice::*;
-use whiteread::parse_line;
-
-use itertools::iproduct;
-use itertools::Itertools;
-use itertools_num::ItertoolsNum;
+#![allow(unused_macros)]
 
 use competitive_internal_mod::data_structures::union_find::*;
 use competitive_internal_mod::format::*;
+use itertools::{iproduct, Itertools};
+use itertools_num::ItertoolsNum;
+use num::*;
+use num_traits::*;
+use proconio::{fastout, input, marker::*};
+use std::{collections::*, ops::*};
+use superslice::*;
+use utils::*;
 
-#[allow(unused_macros)]
-macro_rules! debug {
-    ($($a:expr),* $(,)*) => {
-        #[cfg(debug_assertions)]
-        eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
-    };
-}
-
-/*
-A_xi + A_yi + Ziが偶数
-
-Z_iが偶数なら、A_xi, A_yiは同じ数
-Z_iが奇数なら、A_xi, A_yiは違う数
-
-- 同じやつはグループ分けすれば一発で全部わかる。
-- 違うやつグループもグループに魔法で一発。
-- ヒントがないものは必ず魔法を使う必要がある。
-
-1. 同じグループのものを同じラベルにする(UnionFind)。
-2. 違うグループのものをそのラベルでグループ分けする(UnionFind)。
-3. 2のグループ数と登場していないものの数が答え
-
-正しいが、回答を見るとそもそも一回UnionFindすればいいらしい...
-*/
-
-fn get_cards_set(xyz: &Vec<(usize, usize, usize)>) -> HashSet<usize> {
-    let mut set = HashSet::new();
-
-    for &(x, y, _) in xyz {
-        set.insert(x - 1);
-        set.insert(y - 1);
-    }
-
-    set
-}
-
-fn get_same_group_labels(n: usize, same: &Vec<(usize, usize, usize)>) -> Vec<usize> {
-    let mut un: UnionFind<usize> = UnionFind::new(n);
-
-    for &(x, y, _) in same.iter() {
-        un.union(x - 1, y - 1);
-    }
-
-    un.into_labeling()
-}
-
-fn make_n_map(s: &HashSet<(usize, usize)>) -> HashMap<usize, usize> {
-    let mut map = HashMap::new();
-    let mut cnt = 0;
-    for &(x, y) in s.iter() {
-        if !map.contains_key(&x) {
-            map.insert(x, cnt);
-            cnt += 1;
-        }
-
-        if !map.contains_key(&y) {
-            map.insert(y, cnt);
-            cnt += 1;
-        }
-    }
-    map
-}
-
-fn get_union_number(n: usize, xyz: &Vec<(usize, usize, usize)>) -> usize {
-    let mut un: UnionFind<usize> = UnionFind::new(n);
-
-    for &(x, y, _) in xyz.iter() {
-        un.union(x - 1, y - 1);
-    }
-
-    un.group_numbers()
-}
+const MOD: usize = 1_000_000_007;
+const UINF: usize = std::usize::MAX;
+const IINF: isize = std::isize::MAX;
 
 #[fastout]
-fn solve() -> impl AtCoderFormat {
-    const MOD: usize = 1_000_000_007;
-    const UINF: usize = std::usize::MAX;
-    const IINF: isize = std::isize::MAX;
-
+fn run() -> impl AtCoderFormat {
     input! {
         n: usize, m: usize,
         xyz: [(usize, usize, usize); m]
     }
 
-    let mut ans = 0;
-    ans += n - get_cards_set(&xyz).len();
+    let mut un: UnionFind<usize> = UnionFind::new(n);
 
-    let mut same = vec![];
-    let mut diff = vec![];
-    for &(x, y, z) in xyz.iter() {
-        if z % 2 == 0 {
-            same.push((x, y, z))
-        } else {
-            diff.push((x, y, z));
-        }
-    }
-
-    let same_group_label = get_same_group_labels(n, &same);
-    let mut n_xy = HashSet::new();
     for &(x, y, _) in xyz.iter() {
-        n_xy.insert((same_group_label[x - 1], same_group_label[y - 1]));
+        un.union(x - 1, y - 1);
     }
-    debug!(same_group_label);
-    debug!(n_xy);
-    let nmap = make_n_map(&n_xy);
-    let mut nnxy = HashSet::new();
 
-    for &(x, y) in n_xy.iter() {
-        nnxy.insert((nmap.get(&x).unwrap(), nmap.get(&y).unwrap()));
-    }
-    debug!(nmap);
-    debug!(nnxy);
-
-    let mut un: UnionFind<usize> = UnionFind::new(nmap.len());
-
-    for &(x, y) in nnxy.iter() {
-        un.union(*x, *y);
-    }
-    debug!(un);
-    ans += un.group_numbers();
-
-    get_union_number(n, &xyz)
+    un.get_group_number()
 }
 
 fn main() {
-    println!("{}", solve().format());
+    println!("{}", run().format());
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+}
+
+pub mod utils {
+    macro_rules! debug {
+        ($($a:expr),* $(,)*) => {
+            #[cfg(debug_assertions)]
+            eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
+        };
+    }
+
+    macro_rules! chmin {
+        ($base:expr, $($cmps:expr),+ $(,)*) => {{
+            let cmp_min = min!($($cmps),+);
+            if $base > cmp_min {
+                $base = cmp_min;
+                true;
+            } else {
+                false;
+            }
+        }};
+    }
+
+    macro_rules! chmax {
+        ($base:expr, $($cmps:expr),+ $(,)*) => {{
+            let cmp_max = max!($($cmps),+);
+            if $base < cmp_max {
+                $base = cmp_max;
+                true;
+            } else {
+                false;
+            }
+        }};
+    }
+
+    macro_rules! min {
+        ($a:expr $(,)*) => {{
+            $a
+        }};
+        ($a:expr, $b:expr $(,)*) => {{
+            std::cmp::min($a, $b)
+        }};
+        ($a:expr, $($rest:expr),+ $(,)*) => {{
+            std::cmp::min($a, min!($($rest),+))
+        }};
+    }
+
+    macro_rules! max {
+        ($a:expr $(,)*) => {{
+            $a
+        }};
+        ($a:expr, $b:expr $(,)*) => {{
+            std::cmp::max($a, $b)
+        }};
+        ($a:expr, $($rest:expr),+ $(,)*) => {{
+            std::cmp::max($a, max!($($rest),+))
+        }};
+    }
+
+    pub(crate) use chmax;
+    pub(crate) use chmin;
+    pub(crate) use debug;
+    pub(crate) use max;
+    pub(crate) use min;
 }
 
 mod competitive_internal_mod {
@@ -209,7 +168,27 @@ mod competitive_internal_mod {
         impl_format!(f64);
         impl_format!(&str);
         impl_format!(String);
-        impl_format!(char);
+
+        impl AtCoderFormat for char {
+            fn format(&self) -> String {
+                self.to_string()
+            }
+        }
+
+        impl AtCoderFormat for Vec<char> {
+            fn format(&self) -> String {
+                self.iter().collect::<String>()
+            }
+        }
+
+        impl AtCoderFormat for Vec<Vec<char>> {
+            fn format(&self) -> String {
+                self.iter()
+                    .map(|v| v.format())
+                    .collect::<Vec<String>>()
+                    .join("\n")
+            }
+        }
 
         impl AtCoderFormat for bool {
             fn format(&self) -> String {
@@ -384,6 +363,7 @@ mod competitive_internal_mod {
                     self.parent
                 }
 
+                /// return group size of x
                 pub fn size(&self, x: K) -> usize {
                     let xrep = self.find(x);
                     let xrepu = xrep
@@ -393,7 +373,8 @@ mod competitive_internal_mod {
                     self.size[xrepu]
                 }
 
-                pub fn group_numbers(&self) -> usize {
+                /// get group numbers
+                pub fn get_group_number(&self) -> usize {
                     self.group_num
                 }
 

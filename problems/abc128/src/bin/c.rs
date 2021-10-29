@@ -33,7 +33,7 @@ fn solve() -> impl AtCoderFormat {
 
     let (n, m): (usize, usize) = parse_line().unwrap();
 
-    let mut switchs = vec![vec![]; m];
+    // let mut switchs = vec![vec![]; m];
     for _ in 0..n {
         let v: Vec<usize> = parse_line().unwrap();
     }
