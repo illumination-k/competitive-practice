@@ -11,6 +11,7 @@ use superslice::*;
 use itertools::{iproduct, Itertools};
 use itertools_num::ItertoolsNum;
 use competitive::format::*;
+use competitive::data_structures::union_find::*;
 use utils::*;
 
 const MOD: usize = 1_000_000_007;
@@ -19,7 +20,19 @@ const IINF: isize = std::isize::MAX;
 
 #[fastout]
 fn run() -> impl AtCoderFormat {
-    input! {}
+    input! {
+        m: usize,
+        uv: [(usize, usize); m],
+        p: [usize; 8]
+    }
+
+    let mut un: UnionFind<usize> = UnionFind::new(9);
+    for &(u, v) in uv.iter() {
+        un.union(u-1, v-1);
+    }
+    let label = un.into_labeling();
+    debug!(label);
+
     0
 }
 

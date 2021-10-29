@@ -34,7 +34,7 @@ def new(args):
     os.chdir(PROBLEM_DIRECTORY)
     if args.contest_id not in contest_dirs:
         subprocess.run(f"cargo atcoder new {args.contest_id}", shell=True, check=True)
-        make_toolchain(contest_path)
+        # make_toolchain(contest_path)
         ln_makefile(contest_path)
 
         subprocess.run(["git", "add", "."])
