@@ -3,14 +3,15 @@
 #![allow(dead_code)]
 #![allow(unused_macros)]
 
-use competitive::format::*;
-use itertools::{iproduct, Itertools};
-use itertools_num::ItertoolsNum;
 use num::*;
 use num_traits::*;
 use proconio::{fastout, input, marker::*};
 use std::{collections::*, ops::*};
 use superslice::*;
+use itertools::{iproduct, Itertools};
+use itertools_num::ItertoolsNum;
+use competitive::format::*;
+use competitive::data_structures::union_find::*;
 use utils::*;
 
 const MOD: usize = 1_000_000_007;
@@ -20,12 +21,17 @@ const IINF: isize = std::isize::MAX;
 #[fastout]
 fn run() -> impl AtCoderFormat {
     input! {
-        r: f64,
-        x: f64,
-        y: f64,
+        m: usize,
+        uv: [(usize, usize); m],
+        p: [usize; 8]
     }
 
-    let dist = (x.powi(2) + y.powi(2)).sqrt();
+    let mut un: UnionFind<usize> = UnionFind::new(9);
+    for &(u, v) in uv.iter() {
+        un.union(u-1, v-1);
+    }
+    let label = un.into_labeling();
+    debug!(label);
 
     0
 }

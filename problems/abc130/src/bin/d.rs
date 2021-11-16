@@ -3,14 +3,14 @@
 #![allow(dead_code)]
 #![allow(unused_macros)]
 
-use competitive::format::*;
-use itertools::{iproduct, Itertools};
-use itertools_num::ItertoolsNum;
 use num::*;
 use num_traits::*;
 use proconio::{fastout, input, marker::*};
 use std::{collections::*, ops::*};
 use superslice::*;
+use itertools::{iproduct, Itertools};
+use itertools_num::ItertoolsNum;
+use competitive::format::*;
 use utils::*;
 
 const MOD: usize = 1_000_000_007;
@@ -20,14 +20,30 @@ const IINF: isize = std::isize::MAX;
 #[fastout]
 fn run() -> impl AtCoderFormat {
     input! {
-        r: f64,
-        x: f64,
-        y: f64,
+        n: usize, k: usize,
+        a: [usize; n]
     }
 
-    let dist = (x.powi(2) + y.powi(2)).sqrt();
+    let a_cumsum = a.iter().cloned().chain(std::iter::once(0)).cumsum().collect::<Vec<usize>>();
+    debug!(a_cumsum);
 
-    0
+    let mut ans = 0;
+    for i in 0..a_cumsum.len() {
+        debug!(a_cumsum[i], k);
+        let q = if i != 0 {
+            a_cumsum[i] - a_cumsum[0] + k 
+        } else {
+            k + a_cumsum[i]
+        };
+
+        let index = a_cumsum.lower_bound(&q);
+        debug!(q, index);
+        if index < a_cumsum.len() {
+            ans += n - index + 1;
+        }
+    }
+    
+    ans
 }
 
 fn main() {

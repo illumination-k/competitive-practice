@@ -3,14 +3,14 @@
 #![allow(dead_code)]
 #![allow(unused_macros)]
 
-use competitive::format::*;
-use itertools::{iproduct, Itertools};
-use itertools_num::ItertoolsNum;
 use num::*;
 use num_traits::*;
 use proconio::{fastout, input, marker::*};
 use std::{collections::*, ops::*};
 use superslice::*;
+use itertools::{iproduct, Itertools};
+use itertools_num::ItertoolsNum;
+use competitive::format::*;
 use utils::*;
 
 const MOD: usize = 1_000_000_007;
@@ -20,13 +20,13 @@ const IINF: isize = std::isize::MAX;
 #[fastout]
 fn run() -> impl AtCoderFormat {
     input! {
-        r: f64,
-        x: f64,
-        y: f64,
+        n: usize,
+        a: [usize; n]
     }
+    let mut a_with_index = a.into_iter().enumerate().map(|(i, x)| (x, i)).collect_vec();
+    a_with_index.sort();
 
-    let dist = (x.powi(2) + y.powi(2)).sqrt();
-
+    debug!(a_with_index);
     0
 }
 
