@@ -28,24 +28,23 @@ fn run() -> impl AtCoderFormat {
 
     let q: usize = parse_line().unwrap();
     for _ in 0..q {
-        let v: Vec<usize> = parse_line().unwrap();
+        let v: Vec<isize> = parse_line().unwrap();
 
         match v[0] {
-            1 => bq.push((std::cmp::Reverse(v[1]), count)),
+            1 => bq.push((std::cmp::Reverse(v[1] - cumsum[count]), count)),
             2 => {
                 count += 1;
                 cumsum.push(cumsum.last().unwrap() + v[1])
             }
             3 => {
-                debug!(cumsum);
-                if let Some((Reverse(val), cnt)) = bq.pop() {
-                    let a = val + cumsum[count - cnt];
-                    debug!(a);
+                if let Some((Reverse(val), c)) = bq.pop() {
+                    let a = val + cumsum[count];
                     ans.push(a);
                 }
             }
             _ => unreachable!(),
         }
+        debug!(cumsum, bq, count);
     }
     ans
 }
