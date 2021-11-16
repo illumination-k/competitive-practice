@@ -1,152 +1,129 @@
 #![allow(non_snake_case)]
 #![allow(unused_imports)]
 #![allow(dead_code)]
+#![allow(unused_macros)]
 
 use num::*;
 use num_traits::*;
-use proconio::marker::*;
-use proconio::{fastout, input};
-use std::collections::*;
-use std::ops::*;
+use proconio::{fastout, input, marker::*};
+use std::{collections::*, ops::*};
 use superslice::*;
-use whiteread::parse_line;
-
-use itertools::iproduct;
-use itertools::Itertools;
+use itertools::{iproduct, Itertools};
 use itertools_num::ItertoolsNum;
+use competitive::format::*;
+use utils::*;
 
-use competitive_internal_mod::format::*;
-
-#[allow(unused_macros)]
-macro_rules! debug {
-    ($($a:expr),* $(,)*) => {
-        #[cfg(debug_assertions)]
-        eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
-    };
-}
-
-/*
-マンハッタン距離の総和
-*/
+const MOD: usize = 1_000_000_007;
+const UINF: usize = std::usize::MAX;
+const IINF: isize = std::isize::MAX;
 
 #[fastout]
-fn solve() -> impl AtCoderFormat {
-    const MOD: usize = 1_000_000_007;
-    const UINF: usize = std::usize::MAX;
-    const IINF: isize = std::isize::MAX;
-
-    input! {
-        n: usize, m: usize, k: usize,
-    }
-
-    ""
+fn run() -> impl AtCoderFormat {
+    input! {}
+    0
 }
 
 fn main() {
-    println!("{}", solve().format());
+    println!("{}", run().format());
 }
 
-mod competitive_internal_mod {
-    pub mod format {
-        use std::vec::Vec;
-
-        /// Trait of format for atcoder
-        ///    
-        /// bool -> Yes or No  
-        /// vec![a, b ,c] -> "a\nb\nc"  
-        /// vec![vec![0, 1], vec![1, 0]] -> "0 1\n1 0"  
-        pub trait AtCoderFormat {
-            fn format(&self) -> String;
-        }
-
-        macro_rules! impl_format {
-            ($t: ty) => {
-                impl AtCoderFormat for $t {
-                    fn format(&self) -> String {
-                        self.to_string()
-                    }
-                }
-
-                impl AtCoderFormat for Vec<$t> {
-                    fn format(&self) -> String {
-                        self.iter()
-                            .map(|x| x.to_string())
-                            .collect::<Vec<String>>()
-                            .join("\n")
-                    }
-                }
-
-                impl AtCoderFormat for Vec<Vec<$t>> {
-                    fn format(&self) -> String {
-                        self.iter()
-                            .map(|x| {
-                                x.iter()
-                                    .map(|x| x.to_string())
-                                    .collect::<Vec<String>>()
-                                    .join(" ")
-                            })
-                            .collect::<Vec<String>>()
-                            .join("\n")
-                    }
-                }
-            };
-        }
-
-        impl_format!(usize);
-        impl_format!(u128);
-        impl_format!(u64);
-        impl_format!(u32);
-        impl_format!(u16);
-        impl_format!(u8);
-        impl_format!(isize);
-        impl_format!(i128);
-        impl_format!(i64);
-        impl_format!(i32);
-        impl_format!(i16);
-        impl_format!(i8);
-        impl_format!(f32);
-        impl_format!(f64);
-        impl_format!(&str);
-        impl_format!(String);
-
-        impl AtCoderFormat for char {
-            fn format(&self) -> String {
-                self.to_string()
+#[cfg(test)]
+mod test {
+    use super::*;
+    
+    #[test]
+    fn test_straight() {
+        let (x, y) = (2, 2);
+        let mut board = vec![];
+        for i in 1..=x {
+            for j in 1..=y {
+                board.push((i as i64, j as i64))
             }
         }
 
-        impl AtCoderFormat for Vec<char> {
-            fn format(&self) -> String {
-                self.iter().collect::<String>()
-            }
+        let mut ans = 0;
+        println!("{}", board.len());
+        for com in (0..(x * y)).combinations(2) {
+            let s1 = board[com[0]];
+            let s2 = board[com[1]];
+            ans += (s1.0 - s2.0).abs() + (s1.1 - s2.1).abs();
         }
 
-        impl AtCoderFormat for Vec<Vec<char>> {
-            fn format(&self) -> String {
-                self.iter()
-                    .map(|v| v.format())
-                    .collect::<Vec<String>>()
-                    .join("\n")
-            }
+        println!("ans: {}", ans);
+    }
+
+    #[test]
+    fn test_calc() {
+        let (x, y) = (2, 2);
+        fn sum(a1: i64, an: i64) -> i64 {
+            (an - a1 + 1) * (a1 + an) / 2 
         }
 
-        impl AtCoderFormat for bool {
-            fn format(&self) -> String {
-                if self == &true {
-                    "Yes".to_string()
-                } else {
-                    "No".to_string()
-                }
-            }
-        }
-
-        impl AtCoderFormat for Vec<bool> {
-            fn format(&self) -> String {
-                self.iter()
-                    .map(|x| x.format())
-                    .collect::<Vec<String>>()
-                    .join("\n")
-            }
-        }
+        let ans = sum(0, y-1) * x + y * sum(0, x - 1);
+        println!("{}", ans)
     }
 }
+
+pub mod utils {
+    macro_rules! debug {
+        ($($a:expr),* $(,)*) => {
+            #[cfg(debug_assertions)]
+            eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
+        };
+    }
+
+    macro_rules! chmin {
+        ($base:expr, $($cmps:expr),+ $(,)*) => {{
+            let cmp_min = min!($($cmps),+);
+            if $base > cmp_min {
+                $base = cmp_min;
+                true;
+            } else {
+                false;
+            }
+        }};
+    }
+
+    macro_rules! chmax {
+        ($base:expr, $($cmps:expr),+ $(,)*) => {{
+            let cmp_max = max!($($cmps),+);
+            if $base < cmp_max {
+                $base = cmp_max;
+                true;
+            } else {
+                false;
+            }
+        }};
+    }
+
+    macro_rules! min {
+        ($a:expr $(,)*) => {{
+            $a
+        }};
+        ($a:expr, $b:expr $(,)*) => {{
+            std::cmp::min($a, $b)
+        }};
+        ($a:expr, $($rest:expr),+ $(,)*) => {{
+            std::cmp::min($a, min!($($rest),+))
+        }};
+    }
+
+    macro_rules! max {
+        ($a:expr $(,)*) => {{
+            $a
+        }};
+        ($a:expr, $b:expr $(,)*) => {{
+            std::cmp::max($a, $b)
+        }};
+        ($a:expr, $($rest:expr),+ $(,)*) => {{
+            std::cmp::max($a, max!($($rest),+))
+        }};
+    }
+
+    pub(crate) use chmax;
+    pub(crate) use chmin;
+    pub(crate) use debug;
+    pub(crate) use max;
+    pub(crate) use min;
+}
+
