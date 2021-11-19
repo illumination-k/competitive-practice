@@ -1,4 +1,4 @@
-[tasks.init]
+[tasks.initp]
 script = '''
 #!/bin/bash
 
