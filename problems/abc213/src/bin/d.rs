@@ -18,16 +18,13 @@ const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
-fn dfs(g: &[BTreeSet<usize>], seen: &mut Vec<bool>, start: usize, dist: &mut Vec<usize>) {
-    if seen[start] {
-        return;
-    }
-
-    seen[start] = true;
-
-    for &next in g[start].iter() {
-        dfs(g, seen, next, dist);
-        dist.push(start + 1)
+fn dfs(g: &[BTreeSet<usize>], cur: usize, pre: usize, dist: &mut Vec<usize>) {
+    dist.push(cur + 1);
+    for &next in g[cur].iter() {
+        if next != pre {
+            dfs(g, next, cur, dist);
+            dist.push(cur + 1);
+        }
     }
 }
 
@@ -45,11 +42,8 @@ fn run() -> impl AtCoderFormat {
         g[b].insert(a);
     }
 
-    let mut dist = vec![1];
-
-    let mut seen = vec![false; n];
-    dfs(&g, &mut seen, 0, &mut dist);
-    debug!(dist);
+    let mut dist = vec![];
+    dfs(&g, 0, UINF, &mut dist);
 
     dist.into_iter().map(|x| x.to_string()).join(" ")
 }
