@@ -47,6 +47,10 @@ fn run() -> impl AtCoderFormat {
         g[b].push(a)
     }
 
+    for s in g.iter_mut() {
+        s.sort();
+    }
+
     let mut g = Graph { g, ans: vec![] };
     g.dfs(0, UINF);
     g.ans
