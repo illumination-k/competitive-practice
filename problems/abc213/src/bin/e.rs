@@ -38,7 +38,8 @@ fn run<R: BufRead>(source: AutoSource<R>) -> impl AtCoderFormat {
         .filter(|(x, y)| x.abs() + y.abs() != 4 && x.abs() + y.abs() != 0)
         .collect_vec();
     debug!(mat);
-    let mut bq = BinaryHeap::from([(Reverse(0), (0, 0))]);
+    let mut bq = BinaryHeap::new();
+    bq.push((Reverse(0), (0, 0)));
 
     while let Some((Reverse(dep), (x, y))) = bq.pop() {
         debug!(dep, x, y);
