@@ -3,14 +3,14 @@
 #![allow(dead_code)]
 #![allow(unused_macros)]
 
+use competitive::format::*;
+use itertools::{iproduct, Itertools};
+use itertools_num::ItertoolsNum;
 use num::*;
 use num_traits::*;
 use proconio::{fastout, input, marker::*};
 use std::{collections::*, ops::*};
 use superslice::*;
-use itertools::{iproduct, Itertools};
-use itertools_num::ItertoolsNum;
-use competitive::format::*;
 use utils::*;
 
 const MOD: usize = 1_000_000_007;
