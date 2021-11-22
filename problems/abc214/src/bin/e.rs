@@ -8,8 +8,12 @@ use itertools::{iproduct, Itertools};
 use itertools_num::ItertoolsNum;
 use num::*;
 use num_traits::*;
-use proconio::{fastout, input, marker::*};
-use std::{collections::*, ops::*};
+use proconio::{fastout, input, marker::*, source::auto::AutoSource};
+use std::{
+    collections::*,
+    io::{BufRead, BufReader},
+    ops::*,
+};
 use superslice::*;
 use utils::*;
 
@@ -18,18 +22,24 @@ const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
 #[fastout]
-fn run() -> impl AtCoderFormat {
-    input! {}
+fn run<R: BufRead>(source: AutoSource<R>) -> impl AtCoderFormat {
+    input! {
+        from source,
+    }
     0
 }
 
 fn main() {
-    println!("{}", run().format());
+    println!(
+        "{}",
+        run(AutoSource::new(BufReader::new(std::io::stdin()))).format()
+    );
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use competitive::test_utility::*;
 }
 
 pub mod utils {
