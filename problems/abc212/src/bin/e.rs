@@ -20,28 +20,41 @@ const IINF: isize = std::isize::MAX;
 
 #[fastout]
 fn run() -> impl AtCoderFormat {
-    input! {n: usize, m: usize, k: usize, g: [(usize, usize); m]}
-    let mut e = vec![vec![]; 5050];
+    input! {
+        n: usize, m: usize, k: usize,
+        g: [(usize, usize); m]
+    }
+    let mb = ModIntBuilder::new(MOD);
+    let mut e = vec![vec![]; n];
 
-    for &(u, v) in g.iter() {
-        e[u - 1].push(v - 1);
-        e[v - 1].push(u - 1);
+    // 通れなくなった部分の経路を保存
+    for (u, v) in g.into_iter().map(|(u, v)| (u - 1, v - 1)) {
+        e[u].push(v);
+        e[v].push(u);
     }
 
-    let mut dp = vec![vec![ModInt::new(0, MOD); 5050]; 5050];
-    dp[0][0] = ModInt::new(1, MOD);
+    // dp[day][pos] dayの段階でposにいるときの通り数
+    let mut dp = vec![vec![mb.build(0); n + 1]; k + 1];
+    dp[0][0] = mb.build(1);
 
     for day in 0..k {
-        // let tot = (0..n).map(|pos| dp[day][pos]).sum::<ModInt<usize>>() % MOD;
-        let mut tot = ModInt::new(0, MOD);
-        for i in 0..n {
-            tot += dp[day][i];
+        // すべての道が完全だった場合の通り数
+        let mut tot = mb.build(0);
+        for p in 0..n {
+            tot += dp[day][p];
         }
-        for pos in 0..n {
-            dp[day + 1][pos] = tot - dp[day][pos];
-            e[pos].iter().for_each(|&x| {
-                dp[day + 1][pos] = dp[day + 1][pos] - dp[day][x];
-            });
+
+        debug!(tot);
+
+        // 次の日の通り数
+        for p in 0..n {
+            // 通れない場所の数
+            let mut etot = mb.build(0);
+            for &next in e[p].iter() {
+                etot += dp[day][next];
+            }
+            debug!(etot);
+            dp[day + 1][p] = dp[day + 1][p] + tot - dp[day][p] - etot;
         }
     }
 
@@ -224,10 +237,32 @@ mod competitive_internal_mod {
         }
     }
     pub mod mod_int {
-        use std::ops::{
-            Add, AddAssign, BitAnd, Div, DivAssign, Mul, MulAssign, RemAssign, ShrAssign, Sub,
-            SubAssign,
+        use std::{
+            borrow::Borrow,
+            iter::Sum,
+            ops::{
+                Add, AddAssign, BitAnd, Div, DivAssign, Mul, MulAssign, RemAssign, ShrAssign, Sub,
+                SubAssign,
+            },
         };
+
+        use itertools::Itertools;
+        use num_traits::Zero;
+
+        #[derive(Debug)]
+        pub struct ModIntBuilder<T> {
+            m: T,
+        }
+
+        impl<T: Copy> ModIntBuilder<T> {
+            pub fn new(modulo: T) -> Self {
+                Self { m: modulo }
+            }
+
+            pub fn build(&self, v: T) -> ModInt<T> {
+                ModInt::new_unchecked(v, self.m)
+            }
+        }
 
         #[derive(Debug)]
         pub struct ModInt<T> {
@@ -357,6 +392,7 @@ mod competitive_internal_mod {
             }
         }
 
+<<<<<<< HEAD
         impl<T> Add<ModInt<T>> for ModInt<T>
         where
             T: Copy,
@@ -475,6 +511,56 @@ mod competitive_internal_mod {
                 *self = *self * rhs;
             }
         }
+=======
+        macro_rules! impl_mod_op {
+            ($trait: ident, $function: ident, $op: tt) => {
+                impl<T> $trait<ModInt<T>> for ModInt<T>
+                where
+                    T: Copy,
+                    ModInt<T>: $trait<T, Output = ModInt<T>>,
+                {
+                    type Output = Self;
+                    fn $function(self, rhs: ModInt<T>) -> Self::Output {
+                        self $op rhs.value()
+                    }
+                }
+            };
+        }
+
+        impl_mod_op!(Add, add, +);
+        impl_mod_op!(Sub, sub, -);
+        impl_mod_op!(Mul, mul, *);
+        impl_mod_op!(Div, div, /);
+
+        macro_rules! impl_mod_assign {
+            ($trait: ident, $output_trait: ident, $function: ident, $op: tt) => {
+                impl<T> $trait<T> for ModInt<T>
+                where
+                    T: Copy,
+                    ModInt<T>: $output_trait<T, Output = ModInt<T>>
+                {
+                    fn $function(&mut self, other: T) {
+                        *self = *self $op other;
+                    }
+                }
+
+                impl<T> $trait<ModInt<T>> for ModInt<T>
+                where
+                    T: Copy,
+                    ModInt<T>: $output_trait<ModInt<T>, Output = ModInt<T>>
+                {
+                    fn $function(&mut self, other: ModInt<T>) {
+                        *self = *self $op other;
+                    }
+                }
+            };
+        }
+
+        impl_mod_assign!(AddAssign, Add, add_assign, +);
+        impl_mod_assign!(SubAssign, Sub, sub_assign, -);
+        impl_mod_assign!(DivAssign, Div, div_assign, /);
+        impl_mod_assign!(MulAssign, Mul, mul_assign, *);
+>>>>>>> 5aa6ccac2630f952ad5abc5ea07713b50951a4f4
 
         impl<T> Div<T> for ModInt<T>
         where

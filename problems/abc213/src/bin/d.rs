@@ -3,24 +3,57 @@
 #![allow(dead_code)]
 #![allow(unused_macros)]
 
+use competitive_internal_mod::format::*;
+use itertools::{iproduct, Itertools};
+use itertools_num::ItertoolsNum;
 use num::*;
 use num_traits::*;
 use proconio::{fastout, input, marker::*};
 use std::{collections::*, ops::*};
 use superslice::*;
-use itertools::{iproduct, Itertools};
-use itertools_num::ItertoolsNum;
-use competitive::format::*;
 use utils::*;
 
 const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
+struct Graph {
+    g: Vec<Vec<usize>>,
+    ans: Vec<usize>,
+}
+
+impl Graph {
+    fn dfs(&mut self, start: usize, pre: usize) {
+        self.ans.push(start + 1);
+        for next in self.g[start].clone().iter() {
+            if *next != pre {
+                self.dfs(*next, start);
+                self.ans.push(start + 1)
+            }
+        }
+    }
+}
+
 #[fastout]
 fn run() -> impl AtCoderFormat {
-    input! {}
-    0
+    input! {
+        n: usize,
+        ab: [(usize, usize); n - 1]
+    }
+
+    let mut g = vec![vec![]; n];
+    for (a, b) in ab.iter().cloned().map(|(a, b)| (a - 1, b - 1)) {
+        g[a].push(b);
+        g[b].push(a)
+    }
+
+    for s in g.iter_mut() {
+        s.sort();
+    }
+
+    let mut g = Graph { g, ans: vec![] };
+    g.dfs(0, UINF);
+    g.ans
 }
 
 fn main() {
@@ -30,21 +63,6 @@ fn main() {
 #[cfg(test)]
 mod test {
     use super::*;
-<<<<<<< HEAD
-    use proconio::source::auto::AutoSource;
-
-    #[test]
-    fn test_examples() {
-        let source = AutoSource::from("1 2\n3 4\n");
-        input! {
-            from source,
-            a: [(usize, usize); 2]
-        }
-
-        assert_eq!(a[0], (1, 2));
-    }
-=======
->>>>>>> 5aa6ccac2630f952ad5abc5ea07713b50951a4f4
 }
 
 pub mod utils {
@@ -109,7 +127,6 @@ pub mod utils {
     pub(crate) use max;
     pub(crate) use min;
 }
-<<<<<<< HEAD
 
 mod competitive_internal_mod {
     pub mod format {
@@ -215,5 +232,3 @@ mod competitive_internal_mod {
         }
     }
 }
-=======
->>>>>>> 5aa6ccac2630f952ad5abc5ea07713b50951a4f4
