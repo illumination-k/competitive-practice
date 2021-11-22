@@ -8,7 +8,6 @@ use itertools::{iproduct, Itertools};
 use itertools_num::ItertoolsNum;
 use num::*;
 use num_traits::*;
-
 use proconio::{fastout, input, marker::*, source::auto::AutoSource};
 use std::{
     cmp::Reverse,
@@ -18,51 +17,51 @@ use std::{
 };
 use superslice::*;
 use utils::*;
-use whiteread::parse_line;
 
 const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
-fn inner(mut lr: Vec<(usize, usize)>) -> bool {
-    let mut q = BinaryHeap::new();
-    lr.push((UINF, UINF));
+fn solve(mut lr: Vec<(usize, usize)>) -> bool {
     lr.sort_unstable();
-    let mut x = 1;
+    // 最後の一個が余るので入れる
+    lr.push((UINF, UINF));
+    // rの入れ物
+    let mut bq = BinaryHeap::new();
 
+    // 現在位置
+    let mut cur = 1;
     for &(l, r) in lr.iter() {
-        while x < l && !q.is_empty() {
-            if let Some(Reverse(top)) = q.pop() {
-                if top < x {
+        while cur < l && !bq.is_empty() {
+            if let Some(Reverse(top)) = bq.pop() {
+                if top < cur {
                     return false;
                 }
             }
-            x += 1;
+            cur += 1;
         }
-        x = l;
-        q.push(Reverse(r))
+        cur = l;
+        bq.push(Reverse(r));
     }
 
     true
 }
 
-fn solve(n: usize) -> bool {
-    let mut lr = vec![];
-    for _ in 0..n {
-        let tmp: (usize, usize) = parse_line().unwrap();
-        lr.push(tmp)
-    }
-
-    inner(lr)
-}
-
 #[fastout]
-fn run<R: BufRead>(_: AutoSource<R>) -> impl AtCoderFormat {
-    let t: usize = parse_line().unwrap();
+fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
+    input! {
+        from &mut source,
+        t: usize,
+    }
     let mut ans = vec![];
     for _ in 0..t {
-        let n: usize = parse_line().unwrap();
-        ans.push(solve(n))
+        input! {
+            from &mut source,
+            n: usize,
+            lr: [(usize, usize); n]
+        }
+
+        ans.push(solve(lr));
     }
 
     ans
@@ -79,20 +78,6 @@ fn main() {
 mod test {
     use super::*;
     use competitive::test_utility::*;
-
-    #[test]
-    fn test_solve() {
-        for _ in 0..1000 {
-            let n = gen_number(0, 1000);
-            let mut lr = vec![];
-            for _ in 0..n {
-                let s = gen_number(0, 10000);
-                lr.push((s, gen_number(s, s + 10000)));
-            }
-
-            let _ = inner(lr);
-        }
-    }
 }
 
 pub mod utils {
