@@ -24,52 +24,53 @@ const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
+fn manhattan_dist<T: Signed>(p: &(T, T)) -> T {
+    p.0.abs() + p.1.abs()
+}
+
 #[fastout]
 fn run<R: BufRead>(source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
         from source,
         h: usize, w: usize,
-        mut s: [Chars; h]
+        s: [Chars; h],
     }
 
-    let mat = Matrix2D::new(s);
-    let mut dist = Matrix2D::new(vec![vec![-1; w]; h]);
     let directions = iproduct!(-2..=2, -2..=2)
-        .filter(|(x, y)| x.abs() + y.abs() != 4 && x.abs() + y.abs() != 0)
+        .filter(|p| manhattan_dist(p) != 4 && manhattan_dist(p) != 0)
         .collect_vec();
-    debug!(mat);
+    let graph = Matrix2D::new(s);
+    let mut dist = Matrix2D::fill(-1, graph.shape());
     let mut bq = BinaryHeap::new();
     bq.push((Reverse(0), (0, 0)));
 
     while let Some((Reverse(dep), (x, y))) = bq.pop() {
-        debug!(dep, x, y);
-
         for &(dx, dy) in directions.iter() {
             let cx = x as isize + dx;
             let cy = y as isize + dy;
 
-            if mat.is_not_in(cx, cy) {
+            if graph.is_not_in(cx, cy) {
                 continue;
             }
 
             let cxu = cx as usize;
             let cyu = cy as usize;
-            debug!(cxu, cyu);
             if dist[(cxu, cyu)] >= 0 {
                 continue;
             }
 
-            if dx.abs() + dy.abs() == 1 && mat[(cxu, cyu)] != '#' {
+            if manhattan_dist(&(dx, dy)) == 1 && graph[(cxu, cyu)] == '.' {
                 dist[(cxu, cyu)] = dep;
-                bq.push((Reverse(dep), (cxu, cyu)))
+                bq.push((Reverse(dep), (cxu, cyu)));
             }
-            if mat[(cxu, cyu)] == '#' {
+
+            if graph[(cxu, cyu)] == '#' {
                 dist[(cxu, cyu)] = dep + 1;
                 bq.push((Reverse(dep + 1), (cxu, cyu)))
             }
         }
     }
-    debug!(dist);
+    debug!(dist, directions, directions.len());
     dist[(w - 1, h - 1)]
 }
 
@@ -84,20 +85,6 @@ fn main() {
 mod test {
     use super::*;
     use competitive::test_utility::*;
-
-    #[test]
-    fn test() {
-        let input = "
-        5 7
-        .......
-        ######.
-        .......
-        .######
-        .......
-        ";
-        let source = AutoSource::from(input);
-        run(source);
-    }
 }
 
 pub mod utils {
