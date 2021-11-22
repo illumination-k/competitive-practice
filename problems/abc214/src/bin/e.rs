@@ -46,14 +46,14 @@ fn solve(n: usize) -> bool {
             x += 1;
         }
         x = l;
-        q.push(std::cmp::Reverse(r))
+        q.push(Reverse(r))
     }
 
     true
 }
 
 #[fastout]
-fn run<R: BufRead>(source: AutoSource<R>) -> impl AtCoderFormat {
+fn run<R: BufRead>(_: AutoSource<R>) -> impl AtCoderFormat {
     let t: usize = parse_line().unwrap();
     let mut ans = vec![];
     for _ in 0..t {
