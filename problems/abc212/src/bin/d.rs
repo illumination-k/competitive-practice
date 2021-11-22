@@ -56,6 +56,18 @@ fn main() {
 #[cfg(test)]
 mod test {
     use super::*;
+    use proconio::source::auto::AutoSource;
+
+    #[test]
+    fn test_examples() {
+        let source = AutoSource::from("1 2\n3 4\n");
+        input! {
+            from source,
+            a: [(usize, usize); 2]
+        }
+
+        assert_eq!(a[0], (1, 2));
+    }
 }
 
 pub mod utils {
