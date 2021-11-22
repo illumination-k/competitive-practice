@@ -8,7 +8,7 @@ use itertools::{iproduct, Itertools};
 use itertools_num::ItertoolsNum;
 use num::*;
 use num_traits::*;
-use petgraph::visit::Walker;
+
 use proconio::{fastout, input, marker::*, source::auto::AutoSource};
 use std::{
     cmp::Reverse,
@@ -24,13 +24,7 @@ const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
-fn solve(n: usize) -> bool {
-    let mut lr = vec![];
-    for _ in 0..n {
-        let tmp: (usize, usize) = parse_line().unwrap();
-        lr.push(tmp)
-    }
-
+fn inner(mut lr: Vec<(usize, usize)>) -> bool {
     let mut q = BinaryHeap::new();
     lr.push((UINF, UINF));
     lr.sort_unstable();
@@ -50,6 +44,16 @@ fn solve(n: usize) -> bool {
     }
 
     true
+}
+
+fn solve(n: usize) -> bool {
+    let mut lr = vec![];
+    for _ in 0..n {
+        let tmp: (usize, usize) = parse_line().unwrap();
+        lr.push(tmp)
+    }
+
+    inner(lr)
 }
 
 #[fastout]
@@ -75,6 +79,20 @@ fn main() {
 mod test {
     use super::*;
     use competitive::test_utility::*;
+
+    #[test]
+    fn test_solve() {
+        for _ in 0..1000 {
+            let n = gen_number(0, 1000);
+            let mut lr = vec![];
+            for _ in 0..n {
+                let s = gen_number(0, 10000);
+                lr.push((s, gen_number(s, s + 10000)));
+            }
+
+            let _ = inner(lr);
+        }
+    }
 }
 
 pub mod utils {
