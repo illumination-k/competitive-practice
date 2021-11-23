@@ -33,7 +33,7 @@ fn solve(n: usize, m: usize, a: &[usize]) -> Vec<usize> {
     }
 
     let mut ans = vec![1];
-    for i in 2..m {
+    for i in 2..=m {
         let primes = osak.prime_factorize(i);
         let mut flag = true;
         for k in primes.keys() {
