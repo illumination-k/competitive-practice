@@ -23,15 +23,8 @@ const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
-#[fastout]
-fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
-    input! {
-        from &mut source,
-        n: usize, m: usize,
-        a: [usize; n]
-    }
-
-    let osak = OsaK::new(20000 as usize);
+fn solve(n: usize, m: usize, a: &[usize]) -> Vec<usize> {
+    let osak = OsaK::new(200000 as usize);
 
     let mut prime_set: HashSet<usize> = HashSet::new();
     for &elem in a.iter() {
@@ -54,6 +47,18 @@ fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
         }
     }
     ans.sort_unstable();
+    ans
+}
+
+#[fastout]
+fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
+    input! {
+        from &mut source,
+        n: usize, m: usize,
+        a: [usize; n]
+    }
+
+    let ans = solve(n, m, &a);
     println!("{}", ans.len());
     ans
 }
@@ -69,6 +74,16 @@ fn main() {
 mod test {
     use super::*;
     use competitive::test_utility::*;
+
+    #[test]
+    fn test() {
+        for _ in 0..10000 {
+            let n = gen_number(2, 10000);
+            let m = gen_number(2, 10000);
+            let a = make_random_vec(n, (0, 10000));
+            solve(n, m, &a);
+        }
+    }
 }
 
 pub mod utils {
