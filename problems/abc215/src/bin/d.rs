@@ -23,33 +23,6 @@ const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
-fn solve(n: usize, m: usize, a: &[usize]) -> Vec<usize> {
-    let osak = OsaK::new(200000 as usize);
-
-    let mut prime_set: HashSet<usize> = HashSet::new();
-    for &elem in a.iter() {
-        let primes = osak.prime_factorize(elem);
-        prime_set.extend(primes.keys());
-    }
-
-    let mut ans = vec![1];
-    for i in 2..=m {
-        let primes = osak.prime_factorize(i);
-        let mut flag = true;
-        for k in primes.keys() {
-            if prime_set.contains(k) {
-                flag = false;
-                continue;
-            }
-        }
-        if flag {
-            ans.push(i)
-        }
-    }
-    ans.sort_unstable();
-    ans
-}
-
 #[fastout]
 fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
@@ -58,7 +31,46 @@ fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
         a: [usize; n]
     }
 
-    let ans = solve(n, m, &a);
+    let max_a = *a.iter().max().unwrap();
+    let mut ng = vec![false; max_a + 1];
+
+    for &e in a.iter() {
+        ng[e] = true;
+    }
+
+    let mut d = vec![];
+    for i in 2..=max_a {
+        let mut flag = false;
+
+        // iの倍数を見ていく篩的なもの
+        for j in (i..=max_a).step_by(i) {
+            debug!(i, j);
+            if ng[j] {
+                flag = true;
+            }
+        }
+
+        if flag {
+            d.push(i);
+        }
+    }
+
+    let mut ok = vec![true; m + 1];
+
+    for i in d.into_iter() {
+        // iの倍数がngにあったらだめ
+        for j in (i..=m).step_by(i) {
+            ok[j] = false;
+        }
+    }
+
+    let mut ans = vec![1];
+    for i in 2..=m {
+        if ok[i] {
+            ans.push(i)
+        }
+    }
+    debug!(ng, ok);
     println!("{}", ans.len());
     ans
 }
@@ -74,16 +86,6 @@ fn main() {
 mod test {
     use super::*;
     use competitive::test_utility::*;
-
-    #[test]
-    fn test() {
-        for _ in 0..10000 {
-            let n = gen_number(2, 10000);
-            let m = gen_number(2, 10000);
-            let a = make_random_vec(n, (0, 10000));
-            solve(n, m, &a);
-        }
-    }
 }
 
 pub mod utils {
