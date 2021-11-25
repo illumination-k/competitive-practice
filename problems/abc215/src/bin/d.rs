@@ -17,33 +17,30 @@ use std::{
 use superslice::*;
 use utils::*;
 
-use competitive_internal_mod::prime::*;
-
 const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
 #[fastout]
-fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
+fn run<R: BufRead>(source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
-        from &mut source,
+        from source,
         n: usize, m: usize,
         a: [usize; n]
     }
 
-    let max_a = *a.iter().max().unwrap();
-    let mut ng = vec![false; max_a + 1];
+    let max = max!(*a.iter().max().unwrap(), m);
+    let mut ng = vec![false; max + 1];
 
-    for &e in a.iter() {
-        ng[e] = true;
+    for &aa in a.iter() {
+        ng[aa] = true;
     }
 
-    let mut d = vec![];
-    for i in 2..=max_a {
+    let mut ng_numbers = HashSet::new();
+    for i in 2..=max {
         let mut flag = false;
-
-        // iの倍数を見ていく篩的なもの
-        for j in (i..=max_a).step_by(i) {
+        // iの倍数がngならiがng
+        for j in (i..=max).step_by(i) {
             debug!(i, j);
             if ng[j] {
                 flag = true;
@@ -51,26 +48,20 @@ fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
         }
 
         if flag {
-            d.push(i);
+            ng_numbers.insert(i);
         }
     }
-
     let mut ok = vec![true; m + 1];
-
-    for i in d.into_iter() {
-        // iの倍数がngにあったらだめ
+    for &i in ng_numbers.iter() {
         for j in (i..=m).step_by(i) {
             ok[j] = false;
         }
     }
-
-    let mut ans = vec![1];
-    for i in 2..=m {
-        if ok[i] {
-            ans.push(i)
-        }
-    }
     debug!(ng, ok);
+    let ans = std::iter::once(1)
+        .chain((2..=m).filter(|&x| ok[x]))
+        .collect_vec();
+
     println!("{}", ans.len());
     ans
 }
@@ -197,15 +188,22 @@ mod competitive_internal_mod {
             };
         }
 
-        macro_rules! impl_formats {
-            ($($t: ty), *) => {
-                $(impl_format!{$t})*
-            };
-        }
-
-        impl_formats!(
-            usize, u128, u64, u32, u16, u8, isize, i128, i64, i32, i16, i8, f32, f64, &str, String
-        );
+        impl_format!(usize);
+        impl_format!(u128);
+        impl_format!(u64);
+        impl_format!(u32);
+        impl_format!(u16);
+        impl_format!(u8);
+        impl_format!(isize);
+        impl_format!(i128);
+        impl_format!(i64);
+        impl_format!(i32);
+        impl_format!(i16);
+        impl_format!(i8);
+        impl_format!(f32);
+        impl_format!(f64);
+        impl_format!(&str);
+        impl_format!(String);
 
         impl AtCoderFormat for char {
             fn format(&self) -> String {
@@ -244,193 +242,6 @@ mod competitive_internal_mod {
                     .map(|x| x.format())
                     .collect::<Vec<String>>()
                     .join("\n")
-            }
-        }
-    }
-    pub mod prime {
-        use num_traits::*;
-
-        pub fn is_prime<T>(n: T) -> bool
-        where
-            T: PrimInt + NumAssign,
-        {
-            // O(sqrt(n))
-            let mut flag: bool = true;
-
-            if n == one() {
-                flag = false
-            }
-            let mut i: T = one::<T>().signed_shl(1);
-            while i * i <= n {
-                if n % i == zero() {
-                    flag = false;
-                    break;
-                }
-                i += one();
-            }
-            flag
-        }
-
-        pub fn enum_divisors<T>(n: T) -> Vec<T>
-        where
-            T: PrimInt + NumAssign,
-        {
-            // O(sqrt(n))
-            let mut res: Vec<T> = Vec::new();
-
-            let mut i: T = one();
-
-            while i * i <= n {
-                if n % i == zero() {
-                    res.push(i);
-                    if n / i != i {
-                        res.push(n / i)
-                    }
-                }
-                i += one();
-            }
-            res.sort();
-            res
-        }
-
-        pub fn prime_factorize<T>(mut n: T) -> Vec<(T, T)>
-        where
-            T: PrimInt + NumAssign,
-        {
-            // O(sqrt(n))
-            let mut res: Vec<(T, T)> = Vec::new();
-
-            let mut i: T = one::<T>().signed_shl(1);
-
-            while i * i <= n {
-                if n % i == zero() {
-                    let mut ex = zero::<T>();
-
-                    while n % i == zero() {
-                        ex += one();
-                        n = n / i;
-                    }
-                    res.push((i, ex));
-                }
-                i += one();
-            }
-
-            if n != one() {
-                res.push((n, one()))
-            }
-
-            res
-        }
-
-        pub fn sieve_of_eratosthenes<T: NumCast>(n: T) -> Vec<usize> {
-            let n = n
-                .to_usize()
-                .expect("cannot convert n to usize in sieve_of_eratosthenes");
-            if n < 2 {
-                return vec![];
-            }
-
-            let mut flags = vec![true; n / 2];
-            flags[0] = false;
-
-            let sqrt_x = (((n as f64).sqrt() + 0.1).ceil() + 0.5) as usize;
-            let sqrt_xi = sqrt_x / 2;
-
-            for i in 1..sqrt_xi {
-                if !flags[i] {
-                    continue;
-                }
-                let p = 2 * i + 1;
-                let start = 2 * i * (i + 1);
-                for mult in (start..flags.len()).step_by(p) {
-                    flags[mult] = false;
-                }
-            }
-
-            std::iter::once(2)
-                .chain(
-                    flags
-                        .iter()
-                        .enumerate()
-                        .filter(|(_i, flag)| **flag)
-                        .map(|(i, _flag)| 2 * i + 1),
-                )
-                .collect()
-        }
-
-        #[derive(Debug, Clone)]
-        pub struct OsaK<T: PrimInt + std::hash::Hash + NumAssign> {
-            sieve: Vec<T>,
-            max: T,
-        }
-
-        fn _make_sieve<T: PrimInt>(mut maxu: usize) -> Vec<T> {
-            maxu += 1;
-            let mut sieve: Vec<usize> = (0..maxu).collect();
-
-            let mut i = 2;
-            while i * i < maxu {
-                if sieve[i] < i {
-                    i += 1;
-                    continue;
-                }
-                for j in (i * i..maxu).step_by(i) {
-                    if sieve[j] == j {
-                        sieve[j] = i
-                    }
-                }
-                i += 1;
-            }
-
-            sieve.into_iter().filter_map(|x| T::from(x)).collect()
-        }
-
-        impl<T: PrimInt + std::hash::Hash + NumAssign> OsaK<T> {
-            /// O(maxloglog(max))   
-            /// construct osa-k from max size
-            pub fn new(max: T) -> Self {
-                let maxu = max.to_usize().expect("cannot convert to usize");
-                let sieve = _make_sieve(maxu);
-
-                Self { sieve, max }
-            }
-
-            /// O(max(vec)loglog(max(vec)))  
-            /// construct osa-k from Vector
-            pub fn from(vec: Vec<T>) -> Self {
-                assert!(!vec.is_empty());
-                let max = vec.iter().max().unwrap();
-                let maxu = max.to_usize().unwrap();
-                let sieve = _make_sieve(maxu);
-
-                Self { sieve, max: *max }
-            }
-
-            /// O(1)
-            /// test x is prime or not
-            pub fn is_prime(&self, x: T) -> bool {
-                assert!(x <= self.max);
-                if x == one() || x == zero() {
-                    return false;
-                }
-                self.sieve[x.to_usize().unwrap()] == x
-            }
-
-            /// O(log(n))  
-            /// prime factoraize
-            pub fn prime_factorize(&self, mut n: T) -> std::collections::HashMap<T, T> {
-                assert!(n <= self.max);
-                if n == zero() || n == one() {
-                    return std::collections::HashMap::new();
-                }
-
-                let mut res: std::collections::HashMap<T, T> = std::collections::HashMap::new();
-                while n > one() {
-                    *res.entry(self.sieve[n.to_usize().unwrap()])
-                        .or_insert(zero()) += one();
-                    n /= self.sieve[n.to_usize().unwrap()]
-                }
-                res
             }
         }
     }
