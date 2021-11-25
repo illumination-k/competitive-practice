@@ -22,9 +22,9 @@ const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
 #[fastout]
-fn run<R: BufRead>(source: AutoSource<R>) -> impl AtCoderFormat {
+fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
-        from source,
+        from &mut source,
     }
     0
 }
@@ -104,3 +104,4 @@ pub mod utils {
     pub(crate) use max;
     pub(crate) use min;
 }
+
