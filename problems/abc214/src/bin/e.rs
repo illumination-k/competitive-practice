@@ -17,6 +17,9 @@ use std::{
 };
 use superslice::*;
 use utils::*;
+use whiteread::parse_line;
+
+use competitive::data_structures::union_find::*;
 
 const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
@@ -48,30 +51,44 @@ fn solve(mut lr: Vec<(usize, usize)>) -> bool {
 }
 
 #[fastout]
-fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
-    input! {
-        from &mut source,
-        t: usize,
-    }
+fn run() -> impl AtCoderFormat {
+    let t: usize = parse_line().unwrap();
     let mut ans = vec![];
     for _ in 0..t {
-        input! {
-            from &mut source,
-            n: usize,
-            lr: [(usize, usize); n]
+        let n: usize = parse_line().unwrap();
+        let mut lr = vec![];
+        for _ in 0..n {
+            let tmp: (usize, usize) = parse_line().unwrap();
+            lr.push(tmp);
         }
+        lr.sort_unstable();
+        debug!(lr);
+        if lr.len() == 1 {
+            ans.push(true);
+            continue;
+        }
+        let mut now_max_right = lr[0].1;
+        let mut now_group_idx = 0;
 
-        ans.push(solve(lr));
+        for i in 1..n {
+            if lr[i].0 > now_max_right {
+                debug!(
+                    now_group_idx,
+                    i, lr[now_group_idx].0, now_max_right, lr[i].1
+                );
+                now_max_right = lr[i].1;
+                now_group_idx = i;
+            } else {
+                now_max_right = lr[i].1;
+            }
+        }
     }
 
-    ans
+    0
 }
 
 fn main() {
-    println!(
-        "{}",
-        run(AutoSource::new(BufReader::new(std::io::stdin()))).format()
-    );
+    println!("{}", run().format());
 }
 
 #[cfg(test)]
