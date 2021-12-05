@@ -8,8 +8,12 @@ use itertools::{iproduct, Itertools};
 use itertools_num::ItertoolsNum;
 use num::*;
 use num_traits::*;
-use proconio::{fastout, input, marker::*};
-use std::{collections::*, ops::*};
+use proconio::{fastout, input, marker::*, source::auto::AutoSource};
+use std::{
+    collections::*,
+    io::{BufRead, BufReader},
+    ops::*,
+};
 use superslice::*;
 use utils::*;
 
@@ -17,52 +21,47 @@ const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
-struct Graph {
-    g: Vec<Vec<usize>>,
-    ans: Vec<usize>,
-}
-
-impl Graph {
-    fn dfs(&mut self, start: usize, pre: usize) {
-        self.ans.push(start + 1);
-        for next in self.g[start].clone().iter() {
-            if *next != pre {
-                self.dfs(*next, start);
-                self.ans.push(start + 1)
-            }
+fn dfs(start: usize, g: &[BTreeSet<usize>], prev: usize, ans: &mut Vec<usize>) {
+    ans.push(start + 1);
+    for &next in g[start].iter() {
+        if next == prev {
+            continue;
         }
+
+        dfs(next, g, start, ans);
+        ans.push(start + 1);
     }
 }
 
 #[fastout]
-fn run() -> impl AtCoderFormat {
+fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
+        from &mut source,
         n: usize,
-        ab: [(usize, usize); n - 1]
+        ab: [(Usize1, Usize1); n-1]
     }
 
-    let mut g = vec![vec![]; n];
-    for (a, b) in ab.iter().cloned().map(|(a, b)| (a - 1, b - 1)) {
-        g[a].push(b);
-        g[b].push(a)
+    let mut g = vec![BTreeSet::new(); n];
+    for &(a, b) in ab.iter() {
+        g[a].insert(b);
+        g[b].insert(a);
     }
-
-    for s in g.iter_mut() {
-        s.sort();
-    }
-
-    let mut g = Graph { g, ans: vec![] };
-    g.dfs(0, UINF);
-    g.ans
+    let mut ans = vec![];
+    dfs(0, &g, UINF, &mut ans);
+    ans
 }
 
 fn main() {
-    println!("{}", run().format());
+    println!(
+        "{}",
+        run(AutoSource::new(BufReader::new(std::io::stdin()))).format()
+    );
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use competitive::test_utility::*;
 }
 
 pub mod utils {
@@ -174,22 +173,15 @@ mod competitive_internal_mod {
             };
         }
 
-        impl_format!(usize);
-        impl_format!(u128);
-        impl_format!(u64);
-        impl_format!(u32);
-        impl_format!(u16);
-        impl_format!(u8);
-        impl_format!(isize);
-        impl_format!(i128);
-        impl_format!(i64);
-        impl_format!(i32);
-        impl_format!(i16);
-        impl_format!(i8);
-        impl_format!(f32);
-        impl_format!(f64);
-        impl_format!(&str);
-        impl_format!(String);
+        macro_rules! impl_formats {
+            ($($t: ty), *) => {
+                $(impl_format!{$t})*
+            };
+        }
+
+        impl_formats!(
+            usize, u128, u64, u32, u16, u8, isize, i128, i64, i32, i16, i8, f32, f64, &str, String
+        );
 
         impl AtCoderFormat for char {
             fn format(&self) -> String {
