@@ -4,13 +4,14 @@
 #![allow(unused_macros)]
 
 use competitive_internal_mod::format::*;
+use competitive_internal_mod::matrix2d::*;
 use itertools::{iproduct, Itertools};
 use itertools_num::ItertoolsNum;
 use num::*;
 use num_traits::*;
 use proconio::{fastout, input, marker::*, source::auto::AutoSource};
+use std::cmp::Reverse;
 use std::{
-    cmp::Reverse,
     collections::*,
     io::{BufRead, BufReader},
     ops::*,
@@ -18,59 +19,60 @@ use std::{
 use superslice::*;
 use utils::*;
 
-use competitive_internal_mod::matrix2d::*;
-
 const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
-fn manhattan_dist<T: Signed>(p: &(T, T)) -> T {
-    p.0.abs() + p.1.abs()
+fn manhattan(x: &isize, y: &isize) -> isize {
+    x.abs() + y.abs()
 }
 
 #[fastout]
-fn run<R: BufRead>(source: AutoSource<R>) -> impl AtCoderFormat {
+fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
-        from source,
+        from &mut source,
         h: usize, w: usize,
-        s: [Chars; h],
+        s: [Chars; h]
     }
 
-    let directions = iproduct!(-2..=2, -2..=2)
-        .filter(|p| manhattan_dist(p) != 4 && manhattan_dist(p) != 0)
+    let mat = Matrix2D::new(s);
+    let normal_directions = default_directions();
+    let destroy_directions = iproduct!(-2..=2, -2..=2)
+        .filter(|(x, y)| manhattan(x, y) != 0 && manhattan(x, y) != 4)
         .collect_vec();
-    let graph = Matrix2D::new(s);
-    let mut dist = Matrix2D::fill(-1, graph.shape());
+    // debug!(directions, directions.len());
+
+    let mut dist = Matrix2D::fill(-1, mat.shape());
+    dist[(0, 0)] = 0;
     let mut bq = BinaryHeap::new();
     bq.push((Reverse(0), (0, 0)));
 
-    while let Some((Reverse(dep), (x, y))) = bq.pop() {
-        for &(dx, dy) in directions.iter() {
-            let cx = x as isize + dx;
-            let cy = y as isize + dy;
+    while let Some((Reverse(val), (x, y))) = bq.pop() {
+        debug!(bq, dist);
+        for next in mat.next_index((x as usize, y as usize), &normal_directions) {
+            if mat[next] == '#' {
+                continue;
+            }
+            if dist[next] >= 0 {
+                continue;
+            }
+            dist[next] = val;
+            bq.push((Reverse(val), next))
+        }
 
-            if graph.is_not_in(cx, cy) {
+        for next in mat.next_index((x, y), &destroy_directions) {
+            if dist[next] >= 0 {
+                continue;
+            }
+            if mat[next] != '#' {
                 continue;
             }
 
-            let cxu = cx as usize;
-            let cyu = cy as usize;
-            if dist[(cxu, cyu)] >= 0 {
-                continue;
-            }
-
-            if manhattan_dist(&(dx, dy)) == 1 && graph[(cxu, cyu)] == '.' {
-                dist[(cxu, cyu)] = dep;
-                bq.push((Reverse(dep), (cxu, cyu)));
-            }
-
-            if graph[(cxu, cyu)] == '#' {
-                dist[(cxu, cyu)] = dep + 1;
-                bq.push((Reverse(dep + 1), (cxu, cyu)))
-            }
+            dist[next] = val + 1;
+            bq.push((Reverse(val + 1), next))
         }
     }
-    debug!(dist, directions, directions.len());
+    debug!(dist);
     dist[(w - 1, h - 1)]
 }
 
@@ -196,22 +198,15 @@ mod competitive_internal_mod {
             };
         }
 
-        impl_format!(usize);
-        impl_format!(u128);
-        impl_format!(u64);
-        impl_format!(u32);
-        impl_format!(u16);
-        impl_format!(u8);
-        impl_format!(isize);
-        impl_format!(i128);
-        impl_format!(i64);
-        impl_format!(i32);
-        impl_format!(i16);
-        impl_format!(i8);
-        impl_format!(f32);
-        impl_format!(f64);
-        impl_format!(&str);
-        impl_format!(String);
+        macro_rules! impl_formats {
+            ($($t: ty), *) => {
+                $(impl_format!{$t})*
+            };
+        }
+
+        impl_formats!(
+            usize, u128, u64, u32, u16, u8, isize, i128, i64, i32, i16, i8, f32, f64, &str, String
+        );
 
         impl AtCoderFormat for char {
             fn format(&self) -> String {
