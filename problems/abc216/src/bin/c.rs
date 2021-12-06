@@ -17,8 +17,6 @@ use std::{
 use superslice::*;
 use utils::*;
 
-use competitive::data_structures::union_find::*;
-
 const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
@@ -27,16 +25,8 @@ const IINF: isize = std::isize::MAX;
 fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
         from &mut source,
-        n: usize,
-        mut uvw: [(Usize1, Usize1, usize); n-1]
     }
-    uvw.sort_unstable_by(|a, b| a.0.cmp(&b.0));
-    let mut un = UnionFind::new(n);
-    let mut ans = 0;
-
-    for &(u, v, w) in uvw.iter() {}
-
-    ans
+    0
 }
 
 fn main() {
@@ -114,4 +104,3 @@ pub mod utils {
     pub(crate) use max;
     pub(crate) use min;
 }
-
