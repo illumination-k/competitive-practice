@@ -31,6 +31,16 @@ fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
 
     let mut counter = vec![0; n];
 
+    let ab = ab
+        .iter()
+        .map(|&(a, b)| {
+            let mut v = vec![a, b];
+            v.sort_unstable();
+            (v[0], v[1])
+        })
+        .unique()
+        .collect_vec();
+
     for &(a, b) in ab.iter() {
         counter[a] += 1;
         counter[b] += 1;
@@ -52,6 +62,12 @@ fn main() {
 mod test {
     use super::*;
     use competitive::test_utility::*;
+
+    #[test]
+    fn test_random() {
+        let g = make_random_unweighted_graph(10, 10, false);
+        dbg!(&g);
+    }
 }
 
 pub mod utils {
