@@ -244,9 +244,7 @@ mod competitive_internal_mod {
             }
         }
     }
-}
 
-mod competitive_internal_mod {
     pub mod data_structures {
         pub mod union_find {
             // from petgraph to customize UnionFind. rank -> size
