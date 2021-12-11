@@ -12,7 +12,7 @@ use proconio::{fastout, input, marker::*, source::auto::AutoSource};
 use std::{
     collections::*,
     io::{BufRead, BufReader},
-    ops::*, hash::Hash,
+    ops::*,
 };
 use superslice::*;
 use utils::*;
@@ -21,58 +21,12 @@ const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
-#[derive(Debug, Clone)]
-struct Cylinders {
-    content: Vec<Vec<usize>>,
-    map: HashMap<usize, usize>,
-    index: usize,
-}
-
-impl Cylinders {
-    fn new(mut content: Vec<Vec<usize>>) -> Self {
-        let mut map = HashMap::new();
-        let index = 0;
-        map.entry(content[index].pop().unwrap()).or_insert(0);
-
-        Self { content, map, index }
-    }
-
-    fn rec(&mut self) {
-        self.index += 1;
-
-        if self.index >= self.content.len() {
-            
-        }
-
-        if let Some(val) = self.content[self.index].pop() {
-            
-        }
-    }
-}
-
-
 #[fastout]
 fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
         from &mut source,
-        n: usize, m: usize,
     }
-
-    let mut cylinders = vec![];
-
-    for _ in 0..m {
-        input! {
-            from &mut source,
-            k: usize,
-            a: [usize; k]
-        }
-
-        cylinders.push(a);
-    }
-
-    let mut cylinders = Cylinders::new(cylinders);
-    debug!(cylinders);
-    false
+    0
 }
 
 fn main() {

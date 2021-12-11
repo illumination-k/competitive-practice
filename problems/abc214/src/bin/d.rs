@@ -28,15 +28,11 @@ fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
         from &mut source,
         n: usize,
-        mut uvw: [(Usize1, Usize1, usize); n-1]
+        uvw: [(Usize1, Usize1, usize); n-1]
     }
-    uvw.sort_unstable_by(|a, b| a.0.cmp(&b.0));
-    let mut un = UnionFind::new(n);
-    let mut ans = 0;
 
-    for &(u, v, w) in uvw.iter() {}
-
-    ans
+    
+    0
 }
 
 fn main() {
