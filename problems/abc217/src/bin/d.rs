@@ -3,7 +3,7 @@
 #![allow(dead_code)]
 #![allow(unused_macros)]
 
-use competitive::format::*;
+use competitive_internal_mod::format::*;
 use itertools::{iproduct, Itertools};
 use itertools_num::ItertoolsNum;
 use num::*;
@@ -25,8 +25,29 @@ const IINF: isize = std::isize::MAX;
 fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
         from &mut source,
+        l: usize, q: usize,
+        query: [(usize, usize); q],
     }
-    0
+
+    let mut bset = BTreeSet::new();
+    bset.insert(0);
+    bset.insert(l);
+    let mut ans = vec![];
+
+    for &(c, x) in query.iter() {
+        if c == 1 {
+            bset.insert(x);
+        } else {
+            let upper = *bset.range(x..).next().unwrap();
+            let lower = *bset.range(..=x).next_back().unwrap();
+            debug!(lower, upper, upper - lower);
+            ans.push(upper - lower);
+        }
+    }
+
+    debug!(bset);
+
+    ans
 }
 
 fn main() {
@@ -103,4 +124,102 @@ pub mod utils {
     pub(crate) use debug;
     pub(crate) use max;
     pub(crate) use min;
+}
+
+mod competitive_internal_mod {
+    pub mod format {
+        use std::vec::Vec;
+
+        /// Trait of format for atcoder
+        ///    
+        /// bool -> Yes or No  
+        /// vec![a, b ,c] -> "a\nb\nc"  
+        /// vec![vec![0, 1], vec![1, 0]] -> "0 1\n1 0"  
+        pub trait AtCoderFormat {
+            fn format(&self) -> String;
+        }
+
+        macro_rules! impl_format {
+            ($t: ty) => {
+                impl AtCoderFormat for $t {
+                    fn format(&self) -> String {
+                        self.to_string()
+                    }
+                }
+
+                impl AtCoderFormat for Vec<$t> {
+                    fn format(&self) -> String {
+                        self.iter()
+                            .map(|x| x.to_string())
+                            .collect::<Vec<String>>()
+                            .join("\n")
+                    }
+                }
+
+                impl AtCoderFormat for Vec<Vec<$t>> {
+                    fn format(&self) -> String {
+                        self.iter()
+                            .map(|x| {
+                                x.iter()
+                                    .map(|x| x.to_string())
+                                    .collect::<Vec<String>>()
+                                    .join(" ")
+                            })
+                            .collect::<Vec<String>>()
+                            .join("\n")
+                    }
+                }
+            };
+        }
+
+        macro_rules! impl_formats {
+            ($($t: ty), *) => {
+                $(impl_format!{$t})*
+            };
+        }
+
+        impl_formats!(
+            usize, u128, u64, u32, u16, u8, isize, i128, i64, i32, i16, i8, f32, f64, &str, String
+        );
+
+        impl AtCoderFormat for char {
+            fn format(&self) -> String {
+                self.to_string()
+            }
+        }
+
+        impl AtCoderFormat for Vec<char> {
+            fn format(&self) -> String {
+                self.iter().collect::<String>()
+            }
+        }
+
+        impl AtCoderFormat for Vec<Vec<char>> {
+            fn format(&self) -> String {
+                self.iter()
+                    .map(|v| v.format())
+                    .collect::<Vec<String>>()
+                    .join("\n")
+            }
+        }
+
+        impl AtCoderFormat for bool {
+            fn format(&self) -> String {
+                if self == &true {
+                    "Yes".to_string()
+                } else {
+                    "No".to_string()
+                }
+            }
+        }
+
+        impl AtCoderFormat for Vec<bool> {
+            fn format(&self) -> String {
+                self.iter()
+                    .map(|x| x.format())
+                    .collect::<Vec<String>>()
+                    .join("\n")
+            }
+        }
+    }
 }
