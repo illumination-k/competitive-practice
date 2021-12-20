@@ -8,8 +8,13 @@ use itertools::{iproduct, Itertools};
 use itertools_num::ItertoolsNum;
 use num::*;
 use num_traits::*;
-use proconio::{fastout, input, marker::*};
-use std::{collections::*, ops::*};
+use proconio::{fastout, input, marker::*, source::auto::AutoSource};
+use std::{
+    cmp::Reverse,
+    collections::*,
+    io::{BufRead, BufReader},
+    ops::*,
+};
 use superslice::*;
 use utils::*;
 
@@ -18,48 +23,48 @@ const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
 #[fastout]
-fn run() -> impl AtCoderFormat {
+fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
+        from &mut source,
         n: usize, m: usize,
         mut a: [usize; n],
         mut bc: [(usize, usize); m]
     }
 
-    a.sort();
-    a.reverse();
-    bc.sort_by(|a, b| b.1.cmp(&a.1));
-
-    debug!(a);
+    let mut bq: BinaryHeap<Reverse<usize>> = a.into_iter().map(|x| Reverse(x)).collect();
+    bc.sort_by(|a, b| a.1.cmp(&b.1));
+    bc.reverse();
     debug!(bc);
 
-    let mut ans = 0;
-
-    for &(b, c) in bc.iter() {
-        if a.len() == 0 {
-            break;
-        }
+    while let Some((b, c)) = bc.pop() {
         for _ in 0..b {
-            if let Some(val) = a.pop() {
-                debug!(val);
-                if val >= c {
-                    ans += val;
+            if let Some(Reverse(v)) = bq.pop() {
+                if v < c {
+                    bq.push(Reverse(c));
                 } else {
-                    ans += c;
+                    bq.push(Reverse(v));
+                    break;
                 }
             }
         }
     }
-    ans += a.into_iter().sum::<usize>();
-    ans
+
+    let sum: usize = bq.into_iter().map(|Reverse(x)| x).sum::<usize>();
+
+    sum
 }
 
 fn main() {
-    println!("{}", run().format());
+    println!(
+        "{}",
+        run(AutoSource::new(BufReader::new(std::io::stdin()))).format()
+    );
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use competitive::test_utility::*;
 }
 
 pub mod utils {
@@ -171,22 +176,15 @@ mod competitive_internal_mod {
             };
         }
 
-        impl_format!(usize);
-        impl_format!(u128);
-        impl_format!(u64);
-        impl_format!(u32);
-        impl_format!(u16);
-        impl_format!(u8);
-        impl_format!(isize);
-        impl_format!(i128);
-        impl_format!(i64);
-        impl_format!(i32);
-        impl_format!(i16);
-        impl_format!(i8);
-        impl_format!(f32);
-        impl_format!(f64);
-        impl_format!(&str);
-        impl_format!(String);
+        macro_rules! impl_formats {
+            ($($t: ty), *) => {
+                $(impl_format!{$t})*
+            };
+        }
+
+        impl_formats!(
+            usize, u128, u64, u32, u16, u8, isize, i128, i64, i32, i16, i8, f32, f64, &str, String
+        );
 
         impl AtCoderFormat for char {
             fn format(&self) -> String {
