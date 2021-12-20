@@ -9,8 +9,12 @@ use itertools::{iproduct, Itertools};
 use itertools_num::ItertoolsNum;
 use num::*;
 use num_traits::*;
-use proconio::{fastout, input, marker::*};
-use std::{collections::*, ops::*};
+use proconio::{fastout, input, marker::*, source::auto::AutoSource};
+use std::{
+    collections::*,
+    io::{BufRead, BufReader},
+    ops::*,
+};
 use superslice::*;
 use utils::*;
 
@@ -19,28 +23,33 @@ const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
 #[fastout]
-fn run() -> impl AtCoderFormat {
+fn run<R: BufRead>(source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
+        from source,
         n: usize, m: usize,
-        xyz: [(usize, usize, usize); m]
+        xyz: [(Usize1, Usize1, usize); m]
     }
 
-    let mut un: UnionFind<usize> = UnionFind::new(n);
+    let mut un = UnionFind::new(n);
 
     for &(x, y, _) in xyz.iter() {
-        un.union(x - 1, y - 1);
+        un.union(x, y);
     }
 
     un.get_group_number()
 }
 
 fn main() {
-    println!("{}", run().format());
+    println!(
+        "{}",
+        run(AutoSource::new(BufReader::new(std::io::stdin()))).format()
+    );
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use competitive::test_utility::*;
 }
 
 pub mod utils {
@@ -107,114 +116,11 @@ pub mod utils {
 }
 
 mod competitive_internal_mod {
-    pub mod format {
-        use std::vec::Vec;
-
-        /// Trait of format for atcoder
-        ///    
-        /// bool -> Yes or No  
-        /// vec![a, b ,c] -> "a\nb\nc"  
-        /// vec![vec![0, 1], vec![1, 0]] -> "0 1\n1 0"  
-        pub trait AtCoderFormat {
-            fn format(&self) -> String;
-        }
-
-        macro_rules! impl_format {
-            ($t: ty) => {
-                impl AtCoderFormat for $t {
-                    fn format(&self) -> String {
-                        self.to_string()
-                    }
-                }
-
-                impl AtCoderFormat for Vec<$t> {
-                    fn format(&self) -> String {
-                        self.iter()
-                            .map(|x| x.to_string())
-                            .collect::<Vec<String>>()
-                            .join("\n")
-                    }
-                }
-
-                impl AtCoderFormat for Vec<Vec<$t>> {
-                    fn format(&self) -> String {
-                        self.iter()
-                            .map(|x| {
-                                x.iter()
-                                    .map(|x| x.to_string())
-                                    .collect::<Vec<String>>()
-                                    .join(" ")
-                            })
-                            .collect::<Vec<String>>()
-                            .join("\n")
-                    }
-                }
-            };
-        }
-
-        impl_format!(usize);
-        impl_format!(u128);
-        impl_format!(u64);
-        impl_format!(u32);
-        impl_format!(u16);
-        impl_format!(u8);
-        impl_format!(isize);
-        impl_format!(i128);
-        impl_format!(i64);
-        impl_format!(i32);
-        impl_format!(i16);
-        impl_format!(i8);
-        impl_format!(f32);
-        impl_format!(f64);
-        impl_format!(&str);
-        impl_format!(String);
-
-        impl AtCoderFormat for char {
-            fn format(&self) -> String {
-                self.to_string()
-            }
-        }
-
-        impl AtCoderFormat for Vec<char> {
-            fn format(&self) -> String {
-                self.iter().collect::<String>()
-            }
-        }
-
-        impl AtCoderFormat for Vec<Vec<char>> {
-            fn format(&self) -> String {
-                self.iter()
-                    .map(|v| v.format())
-                    .collect::<Vec<String>>()
-                    .join("\n")
-            }
-        }
-
-        impl AtCoderFormat for bool {
-            fn format(&self) -> String {
-                if self == &true {
-                    "Yes".to_string()
-                } else {
-                    "No".to_string()
-                }
-            }
-        }
-
-        impl AtCoderFormat for Vec<bool> {
-            fn format(&self) -> String {
-                self.iter()
-                    .map(|x| x.format())
-                    .collect::<Vec<String>>()
-                    .join("\n")
-            }
-        }
-    }
     pub mod data_structures {
         pub mod union_find {
             // from petgraph to customize UnionFind. rank -> size
 
             use num_traits::PrimInt;
-            use std::collections::*;
             #[derive(Debug, Clone)]
             pub struct UnionFind<K> {
                 // For element at index *i*, store the index of its parent; the representative itself
@@ -377,31 +283,108 @@ mod competitive_internal_mod {
                 pub fn get_group_number(&self) -> usize {
                     self.group_num
                 }
+            }
+        }
+    }
+    pub mod format {
+        use std::vec::Vec;
 
-                pub fn member(&self, x: K) -> HashSet<K> {
-                    // O(n)
-                    let xrep = self.find(x);
-                    let mut set: HashSet<K> = HashSet::new();
+        /// Trait of format for atcoder
+        ///    
+        /// bool -> Yes or No  
+        /// vec![a, b ,c] -> "a\nb\nc"  
+        /// vec![vec![0, 1], vec![1, 0]] -> "0 1\n1 0"  
+        pub trait AtCoderFormat {
+            fn format(&self) -> String;
+        }
 
-                    for i in 0..self.parent.len() {
-                        let i_k = K::from(i).unwrap();
-                        if self.find(i_k) == xrep {
-                            set.insert(i_k);
-                        }
+        macro_rules! impl_format {
+            ($t: ty) => {
+                impl AtCoderFormat for $t {
+                    fn format(&self) -> String {
+                        self.to_string()
                     }
-
-                    set
                 }
 
-                pub fn member_map(&self) -> HashMap<K, HashSet<K>> {
-                    // O(n^2)
-                    let mut map: HashMap<K, HashSet<K>> = HashMap::new();
-                    for i in 0..self.parent.len() {
-                        map.entry(K::from(i).unwrap())
-                            .or_insert(self.member(K::from(i).unwrap()));
+                impl AtCoderFormat for Vec<$t> {
+                    fn format(&self) -> String {
+                        self.iter()
+                            .map(|x| x.to_string())
+                            .collect::<Vec<String>>()
+                            .join("\n")
                     }
-                    map
                 }
+
+                impl AtCoderFormat for Vec<Vec<$t>> {
+                    fn format(&self) -> String {
+                        self.iter()
+                            .map(|x| {
+                                x.iter()
+                                    .map(|x| x.to_string())
+                                    .collect::<Vec<String>>()
+                                    .join(" ")
+                            })
+                            .collect::<Vec<String>>()
+                            .join("\n")
+                    }
+                }
+            };
+        }
+
+        impl_format!(usize);
+        impl_format!(u128);
+        impl_format!(u64);
+        impl_format!(u32);
+        impl_format!(u16);
+        impl_format!(u8);
+        impl_format!(isize);
+        impl_format!(i128);
+        impl_format!(i64);
+        impl_format!(i32);
+        impl_format!(i16);
+        impl_format!(i8);
+        impl_format!(f32);
+        impl_format!(f64);
+        impl_format!(&str);
+        impl_format!(String);
+
+        impl AtCoderFormat for char {
+            fn format(&self) -> String {
+                self.to_string()
+            }
+        }
+
+        impl AtCoderFormat for Vec<char> {
+            fn format(&self) -> String {
+                self.iter().collect::<String>()
+            }
+        }
+
+        impl AtCoderFormat for Vec<Vec<char>> {
+            fn format(&self) -> String {
+                self.iter()
+                    .map(|v| v.format())
+                    .collect::<Vec<String>>()
+                    .join("\n")
+            }
+        }
+
+        impl AtCoderFormat for bool {
+            fn format(&self) -> String {
+                if self == &true {
+                    "Yes".to_string()
+                } else {
+                    "No".to_string()
+                }
+            }
+        }
+
+        impl AtCoderFormat for Vec<bool> {
+            fn format(&self) -> String {
+                self.iter()
+                    .map(|x| x.format())
+                    .collect::<Vec<String>>()
+                    .join("\n")
             }
         }
     }
