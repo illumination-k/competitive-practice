@@ -30,11 +30,14 @@ fn test_direct<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
 
     let mut ans: usize = 0;
 
-    let cumsum: Vec<isize> = std::iter::once(&0).chain(&a).cumsum().collect_vec();
-
     for l in 0..n {
         for r in l..n {
-            if cumsum[r] - cumsum[l] == k {
+            let mut t = 0;
+            for i in l..r {
+                t += a[i]
+            }
+
+            if t == k {
                 ans += 1;
             }
         }
@@ -60,23 +63,12 @@ fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
 
     for c in cumsum.iter().cloned() {
         *map.entry(c).or_insert(0usize) += 1;
-    }
 
-    for c in cumsum.iter().cloned() {
-        let s = c + k;
-
-        if let Some(num) = map.get(&s) {
+        if let Some(num) = map.get(&(c - k)) {
             ans += *num;
         }
-
-        let c_num = map.get_mut(&c).unwrap();
-        if *c_num != 0 {
-            *c_num -= 1;
-        }
     }
 
-    debug!(cumsum);
-    debug!(map);
     ans
 }
 
@@ -94,7 +86,8 @@ mod test {
 
     #[test]
     fn test() {
-        for _ in 0..100000 {
+        println!("TEST");
+        for _ in 0..10000000 {
             let n = gen_number(1, 30);
             let k = gen_number(-100, 100);
 
