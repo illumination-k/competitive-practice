@@ -40,6 +40,8 @@ function configcp() {
     cp ${toml_path} ${config_path} -f --update
 }
 
+configcp
+
 function showlog() {
     if [ -z "$1" ]; then
         exit 1
