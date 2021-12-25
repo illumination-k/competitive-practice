@@ -34,24 +34,26 @@ fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
     let mut bq: BinaryHeap<Reverse<usize>> = a.into_iter().map(|x| Reverse(x)).collect();
     bc.sort_by(|a, b| a.1.cmp(&b.1));
     bc.reverse();
-    debug!(bc);
+    let mut ans = 0;
 
-    while let Some((b, c)) = bc.pop() {
+    for &(b, c) in bc.iter() {
+        if bq.is_empty() {
+            break;
+        }
+
         for _ in 0..b {
-            if let Some(Reverse(v)) = bq.pop() {
-                if v < c {
-                    bq.push(Reverse(c));
+            if let Some(Reverse(val)) = bq.pop() {
+                if val > c {
+                    ans += val;
                 } else {
-                    bq.push(Reverse(v));
-                    break;
+                    ans += c;
                 }
             }
         }
     }
 
-    let sum: usize = bq.into_iter().map(|Reverse(x)| x).sum::<usize>();
-
-    sum
+    ans += bq.into_iter().map(|Reverse(x)| x).sum::<usize>();
+    ans
 }
 
 fn main() {
