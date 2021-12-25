@@ -22,30 +22,27 @@ const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
 #[fastout]
-fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
+fn run<R: BufRead>(source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
-        from &mut source,
+        from source,
         l: usize, q: usize,
-        query: [(usize, usize); q],
+        query: [(usize, usize); q]
     }
 
-    let mut bset = BTreeSet::new();
-    bset.insert(0);
-    bset.insert(l);
     let mut ans = vec![];
+    let mut cutting = BTreeSet::new();
+    cutting.insert(0);
+    cutting.insert(l);
 
     for &(c, x) in query.iter() {
         if c == 1 {
-            bset.insert(x);
+            cutting.insert(x);
         } else {
-            let upper = *bset.range(x..).next().unwrap();
-            let lower = *bset.range(..=x).next_back().unwrap();
-            debug!(lower, upper, upper - lower);
+            let lower = *cutting.range(..=x).next_back().unwrap();
+            let upper = *cutting.range(x..).next().unwrap();
             ans.push(upper - lower);
         }
     }
-
-    debug!(bset);
 
     ans
 }

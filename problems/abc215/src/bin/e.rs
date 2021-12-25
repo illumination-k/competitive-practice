@@ -24,7 +24,7 @@ const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
 #[fastout]
-fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
+fn run<R: BufRead>(source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
         from &mut source,
         n: usize, s: Chars,
