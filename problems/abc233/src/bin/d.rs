@@ -63,12 +63,14 @@ fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
         *map.entry(c).or_insert(0usize) += 1;
     }
 
-    for c in map.keys().cloned() {
-        let c_num = *map.get(&c).unwrap();
+    for c in cumsum.iter().cloned() {
         let s = c + k;
 
-        if let Some(num) = map.get(&s) {
-            ans += *num * c_num;
+        if let Some(num) = map.get_mut(&s) {
+            ans += *num;
+            if *num != 0 {
+                *num -= 1
+            };
         }
     }
 
