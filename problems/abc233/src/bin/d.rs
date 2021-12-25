@@ -21,6 +21,28 @@ const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
+fn test_direct<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
+    input! {
+        from &mut source,
+        n: usize, k: isize,
+        a: [isize; n]
+    }
+
+    let mut ans: usize = 0;
+
+    let cumsum: Vec<isize> = std::iter::once(&0).chain(&a).cumsum().collect_vec();
+
+    for l in 0..n {
+        for r in l..n {
+            if cumsum[r] - cumsum[l] == k {
+                ans += 1;
+            }
+        }
+    }
+
+    ans
+}
+
 #[fastout]
 fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
@@ -30,6 +52,7 @@ fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
     }
 
     let mut ans: usize = 0;
+    // debug!(a);
 
     let cumsum: Vec<isize> = std::iter::once(&0).chain(&a).cumsum().collect_vec();
     // cumsum内で差分がkになるペアを探す
@@ -49,15 +72,15 @@ fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
         }
     }
 
-    debug!(cumsum);
-    debug!(map);
+    // debug!(cumsum);
+    // debug!(map);
     ans
 }
 
 fn main() {
     println!(
         "{}",
-        run(AutoSource::new(BufReader::new(std::io::stdin()))).format()
+        test_direct(AutoSource::new(BufReader::new(std::io::stdin()))).format()
     );
 }
 
@@ -65,6 +88,26 @@ fn main() {
 mod test {
     use super::*;
     use competitive::test_utility::*;
+
+    #[test]
+    fn test() {
+        for _ in 0..100000 {
+            let n = gen_number(1, 30);
+            let k = gen_number(-100, 100);
+
+            let v = make_random_vec(n, (-100, 100));
+
+            let s = format!("{} {}\n{}", n, k, v.iter().join(" "));
+
+            let ans1 = run(AutoSource::from(s.as_str())).format();
+            let ans2 = run(AutoSource::from(s.as_str())).format();
+
+            if ans1 != ans2 {
+                println!("n: {}, k: {}, v: {:?}", n, k, v);
+                println!("{:?}, {:?}", ans1, ans2);
+            }
+        }
+    }
 }
 
 pub mod utils {
