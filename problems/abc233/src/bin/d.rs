@@ -54,7 +54,9 @@ fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
     let mut ans: usize = 0;
     // debug!(a);
 
-    let cumsum: Vec<isize> = std::iter::once(&0).chain(&a).cumsum().collect_vec();
+    ans += a.iter().cloned().filter(|&x| x == k).count();
+
+    let cumsum: Vec<isize> = a.iter().cumsum().collect_vec();
     // cumsum内で差分がkになるペアを探す
     // 数を数えておく
     let mut map = HashMap::new();
@@ -80,7 +82,7 @@ fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
 fn main() {
     println!(
         "{}",
-        test_direct(AutoSource::new(BufReader::new(std::io::stdin()))).format()
+        run(AutoSource::new(BufReader::new(std::io::stdin()))).format()
     );
 }
 
