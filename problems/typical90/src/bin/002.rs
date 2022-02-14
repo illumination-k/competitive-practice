@@ -62,13 +62,12 @@ fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
         }
 
         if is_ok(&v) {
-            ans.push(v);
+            ans.push(v.iter().join(""));
         }
     }
 
-    debug!(ans.len());
-
-    ans.iter().map(|s| s.iter().join("")).join("\n")
+    ans.sort();
+    ans
 }
 
 fn main() {

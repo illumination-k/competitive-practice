@@ -21,11 +21,35 @@ const MOD: usize = 1_000_000_007;
 const UINF: usize = std::usize::MAX;
 const IINF: isize = std::isize::MAX;
 
-#[fastout]
+struct Context {
+    val: Vec<Vec<usize>>,
+    ans: usize,
+    seen: Vec<bool>,
+}
+
+impl Context {
+    fn dfs(&mut self, start: usize) {
+        let mut si = UINF;
+
+        for (i, f) in self.seen.iter().enumerate() {
+            if !*f {
+                si = i;
+                break;
+            }
+        }
+    }
+}
+
 fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
         from &mut source,
+        n: usize,
     }
+
+    let mut first_val = 0;
+    let groups: HashSet<usize> = (1..2 * n).collect();
+    for _ in 0..n {}
+
     0
 }
 
