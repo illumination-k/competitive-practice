@@ -1,90 +1,150 @@
 #![allow(non_snake_case)]
 #![allow(unused_imports)]
 #![allow(dead_code)]
-
-use num::*;
-use num_traits::*;
-use proconio::marker::*;
-use proconio::{fastout, input};
-use std::collections::*;
-use std::ops::*;
-use superslice::*;
-use whiteread::parse_line;
-
-use itertools::iproduct;
-use itertools::Itertools;
-use itertools_num::ItertoolsNum;
+#![allow(unused_macros)]
 
 use competitive_internal_mod::format::*;
+use itertools::{iproduct, Itertools};
+use itertools_num::ItertoolsNum;
+use num::*;
+use num_traits::*;
+use proconio::{fastout, input, marker::*, source::auto::AutoSource};
+use std::{
+    collections::*,
+    io::{BufRead, BufReader},
+    ops::*,
+};
+use superslice::*;
+use utils::*;
 
-#[allow(unused_macros)]
-macro_rules! debug {
-    ($($a:expr),* $(,)*) => {
-        #[cfg(debug_assertions)]
-        eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
-    };
-}
+const MOD: usize = 1_000_000_007;
+const UINF: usize = std::usize::MAX;
+const IINF: isize = std::isize::MAX;
 
-fn dfs(s: &mut VecDeque<char>, depth: usize, limit: usize, comb: &mut BTreeSet<Vec<char>>) {
-    if depth == limit {
-        comb.insert(s.clone().into());
-        return;
-    }
-
-    for &v in &['(', ')'] {
-        s.push_back(v);
-        dfs(s, depth + 1, limit, comb);
-        s.pop_back();
-    }
-}
-
-fn is_ok(v: &Vec<char>) -> bool {
-    let mut right = 0;
+fn is_ok(v: &[char]) -> bool {
+    //debug!(v);
     let mut left = 0;
+    let mut right = 0;
 
     for &c in v.iter() {
+        //debug!(left, right);
         if c == '(' {
             left += 1;
         } else {
             right += 1;
         }
-
-        if right > left {
+        if left < right {
             return false;
         }
     }
 
-    right == left
+    left == right
 }
 
-fn solve() -> impl AtCoderFormat {
-    const MOD: usize = 1_000_000_007;
-    const UINF: usize = std::usize::MAX;
-    const IINF: isize = std::isize::MAX;
-
+#[fastout]
+fn run<R: BufRead>(mut source: AutoSource<R>) -> impl AtCoderFormat {
     input! {
-        n: usize,
+        from &mut source,
+        n: usize
     }
 
-    if n % 2 == 1 {
-        return "".to_string();
-    }
-    let mut res = BTreeSet::new();
-    dfs(&mut VecDeque::new(), 0, n, &mut res);
+    let mut ans = vec![];
 
-    res.iter()
-        .filter(|x| is_ok(x))
-        .map(|x| x.iter().join(""))
-        .join("\n")
+    for bit in 0..1 << n {
+        let mut v = vec![];
+
+        for i in 0..n {
+            if bit & 1 << i != 0 {
+                v.push('(');
+            } else {
+                v.push(')');
+            }
+        }
+
+        if is_ok(&v) {
+            ans.push(v);
+        }
+    }
+
+    debug!(ans.len());
+
+    ans.iter().map(|s| s.iter().join("")).join("\n")
 }
 
 fn main() {
-    println!("{}", solve().format());
+    println!(
+        "{}",
+        run(AutoSource::new(BufReader::new(std::io::stdin()))).format()
+    );
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use competitive::test_utility::*;
+}
+
+pub mod utils {
+    macro_rules! debug {
+        ($($a:expr),* $(,)*) => {
+            #[cfg(debug_assertions)]
+            eprintln!(concat!($("| ", stringify!($a), "={:?} "),*, "|"), $(&$a),*);
+        };
+    }
+
+    macro_rules! chmin {
+        ($base:expr, $($cmps:expr),+ $(,)*) => {{
+            let cmp_min = min!($($cmps),+);
+            if $base > cmp_min {
+                $base = cmp_min;
+                true;
+            } else {
+                false;
+            }
+        }};
+    }
+
+    macro_rules! chmax {
+        ($base:expr, $($cmps:expr),+ $(,)*) => {{
+            let cmp_max = max!($($cmps),+);
+            if $base < cmp_max {
+                $base = cmp_max;
+                true;
+            } else {
+                false;
+            }
+        }};
+    }
+
+    macro_rules! min {
+        ($a:expr $(,)*) => {{
+            $a
+        }};
+        ($a:expr, $b:expr $(,)*) => {{
+            std::cmp::min($a, $b)
+        }};
+        ($a:expr, $($rest:expr),+ $(,)*) => {{
+            std::cmp::min($a, min!($($rest),+))
+        }};
+    }
+
+    macro_rules! max {
+        ($a:expr $(,)*) => {{
+            $a
+        }};
+        ($a:expr, $b:expr $(,)*) => {{
+            std::cmp::max($a, $b)
+        }};
+        ($a:expr, $($rest:expr),+ $(,)*) => {{
+            std::cmp::max($a, max!($($rest),+))
+        }};
+    }
+
+    pub(crate) use chmax;
+    pub(crate) use chmin;
+    pub(crate) use debug;
+    pub(crate) use max;
+    pub(crate) use min;
 }
 
 mod competitive_internal_mod {
@@ -149,7 +209,27 @@ mod competitive_internal_mod {
         impl_format!(f64);
         impl_format!(&str);
         impl_format!(String);
-        impl_format!(char);
+
+        impl AtCoderFormat for char {
+            fn format(&self) -> String {
+                self.to_string()
+            }
+        }
+
+        impl AtCoderFormat for Vec<char> {
+            fn format(&self) -> String {
+                self.iter().collect::<String>()
+            }
+        }
+
+        impl AtCoderFormat for Vec<Vec<char>> {
+            fn format(&self) -> String {
+                self.iter()
+                    .map(|v| v.format())
+                    .collect::<Vec<String>>()
+                    .join("\n")
+            }
+        }
 
         impl AtCoderFormat for bool {
             fn format(&self) -> String {
